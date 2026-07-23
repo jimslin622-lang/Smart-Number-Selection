@@ -1,15 +1,17 @@
 # 项目定时任务配置
 # 
-# 建议配置：
-# - 21:00 拉取数据（开奖后）
-# - 22:00 分析统计
+# 智能调度说明：
+# - * * * * * : 分时日月周
+# - 每15分钟运行一次调度，检查是否有需要拉取的彩种
+# - 每小时运行一次补漏检查
+# - 每天凌晨运行一次完整的分析统计
 #
 
-# 每天 21:00 从中彩网拉取最新开奖数据
-0 21 * * * cd /app && node backend/scripts/sync-zhcw.js all 50 >> /var/log/cron-sync-zhcw.log 2>&1
+# 每15分钟运行一次智能调度，检查并拉取当天开奖的彩种
+*/15 * * * * cd /app && node backend/scripts/scheduler.js >> /var/log/cron-scheduler.log 2>&1
 
-# 每天 21:30 从香港马会拉取最新六合数据
-30 21 * * * cd /app && node backend/scripts/sync-hkjc-marksix.js 10 >> /var/log/cron-sync-hkjc.log 2>&1
+# 每小时运行一次补漏检查，确保数据完整
+0 * * * * cd /app && node backend/scripts/check-and-fill.js >> /var/log/cron-check-fill.log 2>&1
 
-# 每天晚上 22:00 更新彩票统计数据
-0 22 * * * cd /app && node backend/scripts/update-stats.js >> /var/log/cron-update-stats.log 2>&1
+# 每天凌晨 2:00 更新分析统计数据
+0 2 * * * cd /app && node backend/scripts/update-stats.js >> /var/log/cron-update-stats.log 2>&1

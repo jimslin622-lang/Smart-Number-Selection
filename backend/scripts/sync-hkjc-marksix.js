@@ -37,7 +37,41 @@ async function sync() {
   }, null, 2));
 }
 
-sync().catch(err => {
-  console.error(err);
-  process.exitCode = 1;
-}).finally(closePool);
+async function syncFromModule(count = 50) {
+  const pool = getPool();
+  if (!pool) throw new Error('Database config missing');
+  
+  const rows = await fetchMarkSixResults({ count, maxCount: 500 });
+  let inserted = 0;
+  
+  for (const row of rows) {
+    const numbers = { normal: row.raw.main.map(String), special: String(row.raw.special) };
+    try {
+      await pool.query(`
+        INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
+        VALUES($1,$2,$3,$4::jsonb,$5)
+        ON CONFLICT(lottery_code, issue) DO NOTHING
+      `, ['lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
+      inserted++;
+    } catch (e) {
+      // 跳过重复
+    }
+  }
+  
+  const summary = await pool.query(`
+    SELECT count(*)::int AS total, max(draw_date)::text AS latest, min(draw_date)::text AS earliest
+    FROM lottery_draw
+    WHERE lottery_code = 'lhc' AND data_source = 'hkjc.com'
+  `);
+  
+  console.log(`拉取: ${rows.length}, 入库: ${inserted}`);
+}
+
+if (require.main === module) {
+  sync().catch(err => {
+    console.error(err);
+    process.exitCode = 1;
+  }).finally(closePool);
+}
+
+module.exports = { sync: syncFromModule };

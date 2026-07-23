@@ -246,4 +246,35 @@ async function main() {
   console.log('\n✅ 同步完成');
 }
 
-main();
+async function syncFromModule(typeId, count = 50) {
+  const zhcwId = ZHCW_LOTTERY_IDS[typeId];
+  if (!zhcwId) {
+    console.error(`Unknown lottery type: ${typeId}`);
+    return;
+  }
+
+  const rule = LOTTERY_RULES[typeId];
+  console.log(`同步 ${rule.name} (${typeId})`);
+
+  try {
+    const records = await fetchFromZhcw(zhcwId, count);
+    console.log(`  从API获取到 ${records.length} 条记录`);
+
+    if (records.length === 0) {
+      console.log('  无新数据');
+      return;
+    }
+
+    const result = await saveToDb(typeId, records);
+    console.log(`  入库: ${result.inserted} 条, 跳过: ${result.skipped} 条`);
+  } catch (err) {
+    console.error(`  同步失败:`, err.message);
+  }
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = { sync: syncFromModule, syncType, syncAll };
+
