@@ -101,12 +101,14 @@ async function getLatestDate(pool, code) {
 
 /**
  * 插入一条示例记录到 lottery_draw
+ * 如果记录已存在，则更新 updated_at
  */
 async function insertDraw(pool, code, issue, drawDate, numbers, source) {
   await pool.query(`
     INSERT INTO lottery_draw (lottery_code, issue, draw_date, numbers, data_source)
     VALUES ($1, $2, $3, $4::jsonb, $5)
-    ON CONFLICT (lottery_code, issue) DO NOTHING
+    ON CONFLICT (lottery_code, issue) 
+    DO UPDATE SET updated_at = now()
   `, [code, issue, drawDate, JSON.stringify(numbers), source]);
 }
 

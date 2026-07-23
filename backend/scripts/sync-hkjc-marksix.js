@@ -15,7 +15,8 @@ async function sync() {
       await pool.query(`
         INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
         VALUES($1,$2,$3,$4::jsonb,$5)
-        ON CONFLICT(lottery_code, issue) DO NOTHING
+        ON CONFLICT(lottery_code, issue) 
+        DO UPDATE SET updated_at = now()
       `, ['lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
       inserted++;
     } catch (e) {
@@ -50,7 +51,8 @@ async function syncFromModule(count = 50) {
       await pool.query(`
         INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
         VALUES($1,$2,$3,$4::jsonb,$5)
-        ON CONFLICT(lottery_code, issue) DO NOTHING
+        ON CONFLICT(lottery_code, issue) 
+        DO UPDATE SET updated_at = now()
       `, ['lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
       inserted++;
     } catch (e) {

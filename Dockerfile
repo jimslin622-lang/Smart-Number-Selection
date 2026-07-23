@@ -9,8 +9,11 @@ RUN npm install --omit=dev
 # 复制后端代码
 COPY backend/server ./server
 COPY backend/scripts ./scripts
-COPY utils ./utils
-COPY services ./services
+COPY backend/utils ./utils
+COPY backend/config ./config
+COPY backend/db ./db
+COPY backend/middleware ./middleware
+COPY backend/routes ./routes
 
 # 复制小程序配置（仅用于版本参考，非必需）
 COPY frontend/app.json frontend/project.config.json ./

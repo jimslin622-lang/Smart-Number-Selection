@@ -158,7 +158,8 @@ async function saveToDb(typeId, records) {
       await query(
         `INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
          VALUES ($1, $2, $3, $4::jsonb, 'zhcw.com')
-         ON CONFLICT (lottery_code, issue) DO NOTHING`,
+         ON CONFLICT (lottery_code, issue) 
+         DO UPDATE SET updated_at = now()`,
         [typeId, period, sampleDate, JSON.stringify(numbers)]
       );
       inserted++;

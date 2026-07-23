@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS lottery_draw (
   numbers JSONB NOT NULL,
   data_source TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE(lottery_code, issue)
 );
 CREATE INDEX IF NOT EXISTS idx_lottery_draw_code_date ON lottery_draw(lottery_code, draw_date DESC, id DESC);
@@ -93,7 +94,8 @@ CREATE TABLE IF NOT EXISTS marksix_property (
   color TEXT NOT NULL,
   zodiac TEXT NOT NULL DEFAULT '',
   season TEXT NOT NULL DEFAULT '',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- 开奖日历（预留）
