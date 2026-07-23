@@ -1,17 +1,23 @@
-# 项目定时任务配置
+# 项目定时任务配置 - 双保险策略
 # 
-# 智能调度说明：
-# - * * * * * : 分时日月周
-# - 每15分钟运行一次调度，检查是否有需要拉取的彩种
-# - 每小时运行一次补漏检查
-# - 每天凌晨运行一次完整的分析统计
-#
+# ========================================================
+# 策略说明：
+# 1. 开奖时间立即拉取一次（快，但可能网站没更新）
+# 2. 开奖后延迟30分钟再拉取一次（稳，确保数据完整）
+# 3. 每小时补漏检查
+# 4. 每天凌晨统计分析
+# ========================================================
 
-# 每15分钟运行一次智能调度，检查并拉取当天开奖的彩种
-*/15 * * * * cd /app && node backend/scripts/scheduler.js >> /var/log/cron-scheduler.log 2>&1
+# ---------- 立即拉取任务 (开奖时间到达后立即尝试) ----------
+# 每5分钟检查一次，在开奖时间窗口内立即拉取
+*/5 * * * * cd /app && node backend/scripts/scheduler.js --immediate >> /var/log/cron-scheduler-immediate.log 2>&1
 
-# 每小时运行一次补漏检查，确保数据完整
+# ---------- 延迟拉取任务 (开奖后30分钟再拉取一次) ----------
+# 每5分钟检查一次，在延迟拉取时间窗口内拉取
+*/5 * * * * cd /app && node backend/scripts/scheduler.js --delayed >> /var/log/cron-scheduler-delayed.log 2>&1
+
+# ---------- 补漏检查任务 (每小时运行一次) ----------
 0 * * * * cd /app && node backend/scripts/check-and-fill.js >> /var/log/cron-check-fill.log 2>&1
 
-# 每天凌晨 2:00 更新分析统计数据
+# ---------- 分析统计任务 (每天凌晨 2:00 运行) ----------
 0 2 * * * cd /app && node backend/scripts/update-stats.js >> /var/log/cron-update-stats.log 2>&1
