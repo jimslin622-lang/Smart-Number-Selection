@@ -1,2 +1,15 @@
+# 项目定时任务配置
+# 
+# 建议配置：
+# - 21:00 拉取数据（开奖后）
+# - 22:00 分析统计
+#
+
+# 每天 21:00 从中彩网拉取最新开奖数据
+0 21 * * * cd /app && node backend/scripts/sync-zhcw.js all 50 >> /var/log/cron-sync-zhcw.log 2>&1
+
+# 每天 21:30 从香港马会拉取最新六合数据
+30 21 * * * cd /app && node backend/scripts/sync-hkjc-marksix.js 10 >> /var/log/cron-sync-hkjc.log 2>&1
+
 # 每天晚上 22:00 更新彩票统计数据
-0 22 * * * cd /app && node server/scripts/update-stats.js >> /var/log/cron-update-stats.log 2>&1
+0 22 * * * cd /app && node backend/scripts/update-stats.js >> /var/log/cron-update-stats.log 2>&1
