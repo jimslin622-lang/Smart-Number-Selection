@@ -12,7 +12,7 @@
       - "5432:5432"
     volumes:
       - random_number_pgdata:/var/lib/postgresql/data
-      - ./server/db/init:/docker-entrypoint-initdb.d:ro
+      - ./backend/server/db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U random_user -d random_number_helper"]
       interval: 5s

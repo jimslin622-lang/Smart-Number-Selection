@@ -2,14 +2,18 @@ FROM docker.m.daocloud.io/library/node:20-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+# 复制后端依赖
+COPY backend/package.json backend/package-lock.json* ./
 RUN npm install --omit=dev
 
-COPY server ./server
-COPY scripts ./scripts
+# 复制后端代码
+COPY backend/server ./server
+COPY backend/scripts ./scripts
 COPY utils ./utils
 COPY services ./services
-COPY app.json project.config.json sitemap.json ./
+
+# 复制小程序配置（仅用于版本参考，非必需）
+COPY frontend/app.json frontend/project.config.json ./
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
