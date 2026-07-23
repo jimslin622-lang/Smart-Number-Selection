@@ -1,9 +1,8 @@
 {
-  "description": "智能随机助手小程序 - 前后端分离版",
+  "description": "智能选号助手小程序",
   "projectname": "lottery_app",
   "appid": "wx94a497f9c9d5a8fc",
   "compileType": "miniprogram",
-  "miniprogramRoot": "frontend/",
   "setting": {
     "urlCheck": false,
     "es6": true,
@@ -37,7 +36,11 @@
         "type": "folder"
       },
       {
-        "value": "backend",
+        "value": "server",
+        "type": "folder"
+      },
+      {
+        "value": "scripts",
         "type": "folder"
       },
       {
@@ -61,11 +64,11 @@
         "type": "file"
       },
       {
-        "value": "organize-project.ps1",
+        "value": "replace-words.js",
         "type": "file"
       },
       {
-        "value": "fix-frontend.ps1",
+        "value": "update-db-sensitive-words.js",
         "type": "file"
       }
     ],
