@@ -10,10 +10,10 @@
  */
 
 const LOTTERY_SCHEDULE = [
-  // 香港六合彩 (周二、周四、周六/周日)
+  // 6+1模式 (周二、周四、周六/周日)
   {
     code: 'lhc',
-    name: '六合',
+    name: '6+1模式',
     provider: 'hkjc',
     days: [2, 4, 6, 7], // 周二、周四、周六、周日
     time: '21:00',     // 21:00 开奖
@@ -21,7 +21,7 @@ const LOTTERY_SCHEDULE = [
     delayMinutes: 30, // 开奖后延迟30分钟拉取
   },
 
-  // 双色球 (周二、周四、周日)
+  // 红蓝模式 (周二、周四、周日)
   {
     code: 'ssq',
     name: '红蓝',
@@ -32,7 +32,7 @@ const LOTTERY_SCHEDULE = [
     delayMinutes: 15,
   },
 
-  // 乐透 (周一、周三、周六)
+  // 双区模式 (周一、周三、周六)
   {
     code: 'dlt',
     name: '双区',
@@ -43,7 +43,7 @@ const LOTTERY_SCHEDULE = [
     delayMinutes: 15,
   },
 
-  // 七乐彩 (周一、周三、周五)
+  // 七位模式 (周一、周三、周五)
   {
     code: 'qlc',
     name: '七位',
@@ -54,10 +54,10 @@ const LOTTERY_SCHEDULE = [
     delayMinutes: 15,
   },
 
-  // 七星彩 (周二、周五、周日)
+  // 七星模式 (周二、周五、周日)
   {
     code: 'qxc',
-    name: '七星',
+    name: '七星模式',
     provider: 'zhcw',
     days: [2, 5, 7], // 周二、周五、周日
     time: '20:30',
