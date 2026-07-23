@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "page": "pages/index/index",
+      "index": true
+    }
+  ]
+}

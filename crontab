@@ -1,0 +1,2 @@
+# 每天晚上 22:00 更新彩票统计数据
+0 22 * * * cd /app && node server/scripts/update-stats.js >> /var/log/cron-update-stats.log 2>&1

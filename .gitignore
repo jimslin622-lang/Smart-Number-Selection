@@ -1,0 +1,32 @@
+# 微信小程序
+project.private.config.json
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# 后端服务
+server/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
+_check.txt
+.inspect_ids.out.txt
+
+# 日志
+*.log

@@ -1,0 +1,9 @@
+<view class="tabbar">
+  <view class="tabbar-item {{current === item.key ? 'active' : ''}}"
+        wx:for="{{list}}" wx:key="key"
+        data-page="{{item.pagePath}}"
+        bindtap="onTabTap">
+    <image class="tabbar-icon" src="{{current === item.key ? item.selectedIconPath : item.iconPath}}" mode="aspectFit" />
+    <text class="tabbar-text">{{item.text}}</text>
+  </view>
+</view>

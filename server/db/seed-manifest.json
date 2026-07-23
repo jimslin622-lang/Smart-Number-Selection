@@ -1,0 +1,17 @@
+{
+  "version": "0.1.0",
+  "description": "本地准生产数据库历史组合数据种子配置。路线 B 口径下作为历史示例/历史组合数据使用。",
+  "generatedAt": "2026-06-14",
+  "templates": {
+    "lhc": { "name": "六合", "historyCount": 130 },
+    "ssq": { "name": "双色", "historyCount": 145 },
+    "dlt": { "name": "乐透", "historyCount": 138 },
+    "qlc": { "name": "七乐", "historyCount": 74 },
+    "qxc": { "name": "七星", "historyCount": 96 },
+    "fc3d": { "name": "福彩3D", "historyCount": 210 },
+    "pl3": { "name": "3列", "historyCount": 198 },
+    "pl5": { "name": "5列", "historyCount": 198 },
+    "kl8": { "name": "快8", "historyCount": 156 }
+  },
+  "totalHistoryRows": 1345
+}

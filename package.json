@@ -1,0 +1,16 @@
+{
+  "name": "random-number-helper",
+  "version": "0.1.0",
+  "private": true,
+  "description": "随机号码助手小程序与本地准生产 API",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js",
+    "seed": "node server/scripts/seed-history.js",
+    "check": "node server/scripts/check-project.js"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.16.0"
+  }
+}

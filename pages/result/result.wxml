@@ -1,0 +1,69 @@
+<view class="container">
+  <view class="header">
+    <text class="title">{{type}} 历史示例</text>
+  </view>
+
+  <!-- 玩法筛选 -->
+  <view class="card type-filter-card">
+    <text class="filter-label">玩法筛选：</text>
+    <scroll-view scroll-x class="type-scroll" enhanced show-scrollbar="false">
+      <view class="type-filter-list">
+        <view class="type-chip {{selectedId === item.id ? 'active' : ''}}"
+              wx:for="{{lotteryTypes}}"
+              wx:key="id"
+              bindtap="onSelectType"
+              data-name="{{item.name}}">
+          {{item.name}}
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 组数选择 -->
+  <view class="card period-card">
+    <text class="period-label">显示组数：</text>
+    <view class="period-btns">
+      <view class="period-btn {{periodCount === 10 ? 'active' : ''}}" bindtap="setPeriods" data-count="10">10组</view>
+      <view class="period-btn {{periodCount === 20 ? 'active' : ''}}" bindtap="setPeriods" data-count="20">20组</view>
+      <view class="period-btn {{periodCount === 30 ? 'active' : ''}}" bindtap="setPeriods" data-count="30">30组</view>
+      <view class="period-btn {{periodCount === 50 ? 'active' : ''}}" bindtap="setPeriods" data-count="50">50组</view>
+      <view class="period-btn {{periodCount >= 300 ? 'active' : ''}}" bindtap="setPeriods" data-count="-1">全部</view>
+    </view>
+  </view>
+
+  <!-- 规则说明 -->
+  <view class="card rules-card" wx:if="{{rule}}">
+    <view class="rules-header" bindtap="toggleRules">
+      <text class="rules-title">{{rule.title}}</text>
+      <text class="rules-toggle">{{rulesExpanded ? '收起' : '展开'}}</text>
+    </view>
+    <view class="rules-content" wx:if="{{rulesExpanded}}">
+      <view class="rule-item" wx:for="{{rule.items}}" wx:key="*this">
+        <text class="rule-dot">•</text>
+        <text class="rule-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="result-list">
+    <view class="result-item" wx:for="{{results}}" wx:key="index">
+      <view class="result-info">
+        <view class="result-period-group">
+          <text class="result-tag" wx:if="{{index === 0}}">最新</text>
+          <text class="result-period">{{item.period}}</text>
+        </view>
+        <text class="result-date">{{item.date}}</text>
+      </view>
+      <view class="result-numbers">
+        <view wx:for="{{item.flatBalls}}" wx:for-item="ball" wx:key="num" style="width: {{item.ballSize}}rpx; height: {{item.ballSize}}rpx; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.15); position: relative; background: {{ball.ballStyle}};">
+          <text style="font-size: {{item.ballFontSize}}rpx; font-weight: 800; color: #ffffff; line-height: 1; z-index: 1;">{{ball.num}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="result-count">
+    <text class="result-count-text">{{countText}}</text>
+  </view>
+
+</view>

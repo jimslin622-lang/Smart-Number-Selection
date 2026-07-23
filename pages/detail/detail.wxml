@@ -1,0 +1,370 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="header-left">
+      <text class="header-title">{{selectedType}}</text>
+    </view>
+    <view class="header-stats">
+      <text>已随机 <text class="num">{{periodTotal}}</text> 组</text>
+      <text>剩余 <text class="num">{{periodRemain}}</text> 组</text>
+    </view>
+  </view>
+
+  <!-- 导出按钮 -->
+  <view class="export-bar">
+    <view class="export-btn export-btn-used" bindtap="exportPeriod">
+      <text class="export-btn-text">导出已随机号码</text>
+    </view>
+    <view class="export-btn export-btn-rec" bindtap="exportRecommend">
+      <text class="export-btn-text">导出未随机号码</text>
+    </view>
+  </view>
+  <view class="last-draw" wx:if="{{latestResult}}">
+    <text class="last-label">上组</text>
+    <view class="last-draw-balls">
+      <view wx:for="{{lastBalls}}" wx:key="bi" wx:for-index="bi" wx:for-item="ball">
+        <view wx:if="{{ball.sep}}" class="last-ball-sep">{{ball.num}}</view>
+        <view wx:else class="last-ball-item" style="background:{{ball.bg}};">{{ball.num}}</view>
+      </view>
+    </view>
+    <text class="last-period">{{latestResult.period}}组</text>
+  </view>
+
+  <!-- 玩法标签 -->
+  <view class="method-tabs">
+    <view class="method-tab {{curMethod === item.id ? 'active' : ''}}"
+          wx:for="{{methods}}" wx:key="id"
+          data-method="{{item.id}}"
+          bindtap="switchMethod">{{item.name}}</view>
+  </view>
+
+  <!-- 配置面板 -->
+  <view class="config-panel" wx:if="{{selectedDef}}">
+    <view class="config-title">{{curMethodName}}<text class="config-desc"> — {{curMethodDesc}}</text></view>
+
+    <!-- ========== 智能加权 / 冷热倾向 ========== -->
+    <block wx:if="{{curMethod === 'weighted' || curMethod === 'hotcold'}}">
+      <view class="config-row">
+        <text class="config-label">冷热</text>
+        <picker range="{{['均衡','偏热号','偏冷号']}}" value="{{config.hotcoldPref === 'balanced' ? 0 : config.hotcoldPref === 'hot' ? 1 : 2}}" bindchange="onHotcoldPicker">
+          <view class="config-select">
+            <text>{{config.hotcoldPref === 'balanced' ? '均衡' : config.hotcoldPref === 'hot' ? '偏热号' : '偏冷号'}}</text>
+            <text class="select-arrow">▼</text>
+          </view>
+        </picker>
+        <text class="config-hint">热号=近组高频 冷号=长组未出</text>
+      </view>
+    </block>
+
+    <!-- ========== 胆拖选号 ========== -->
+    <block wx:if="{{curMethod === 'dantuo'}}">
+      <view class="config-hint-box">
+        <text class="config-hint-text">设置胆码（至少1个）后在下方号码池选号，其余位置自动补全</text>
+      </view>
+      <text class="pool-hint">点击号码切换：胆码→排除→取消</text>
+      <view class="pool-section">
+        <text class="pool-label">{{selectedDef.main[4]}}</text>
+        <view class="ball-grid">
+          <view class="ball-sel {{ballStates['main'][item.value + ''] === 1 ? 'picked' : ballStates['main'][item.value + ''] === 2 ? 'excluded' : ''}}"
+                wx:for="{{mainRange}}" wx:key="value"
+                data-prefix="main" data-num="{{item.value}}"
+                bindtap="toggleBall">
+            <text wx:if="{{ballStates['main'][item.value + ''] === 2}}">✕</text>
+            <text wx:else>{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="pool-section" wx:if="{{selectedDef.extra}}">
+        <text class="pool-label">{{selectedDef.extra[4]}}</text>
+        <view class="ball-grid">
+          <view class="ball-sel {{ballStates['extra'][item.value + ''] === 1 ? 'picked extra-picked' : ballStates['extra'][item.value + ''] === 2 ? 'excluded' : ''}}"
+                wx:for="{{extraRange}}" wx:key="value"
+                data-prefix="extra" data-num="{{item.value}}"
+                bindtap="toggleBall">
+            <text wx:if="{{ballStates['extra'][item.value + ''] === 2}}">✕</text>
+            <text wx:else>{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- ========== 复式选号 ========== -->
+    <block wx:if="{{curMethod === 'fushi'}}">
+      <view class="config-row">
+        <text class="config-label">{{selectedDef.main[4]}}池</text>
+        <input class="config-input" type="number" value="{{config.fushiMain || selectedDef.main[2] + 2}}" data-key="fushiMain" bindinput="onConfigNumber" />
+        <text class="config-hint">选{{selectedDef.main[2]}}</text>
+      </view>
+      <view class="config-row" wx:if="{{selectedDef.extra}}">
+        <text class="config-label">{{selectedDef.extra[4]}}池</text>
+        <input class="config-input" type="number" value="{{config.fushiExtra || selectedDef.extra[2] + 1}}" data-key="fushiExtra" bindinput="onConfigNumber" />
+        <text class="config-hint">选{{selectedDef.extra[2]}}</text>
+      </view>
+      <text class="pool-hint">点击号码选中/排除</text>
+      <view class="pool-section">
+        <text class="pool-label">{{selectedDef.main[4]}}</text>
+        <view class="ball-grid">
+          <view class="ball-sel {{ballStates['main'][item.value + ''] === 1 ? 'picked' : ballStates['main'][item.value + ''] === 2 ? 'excluded' : ''}}"
+                wx:for="{{mainRange}}" wx:key="value"
+                data-prefix="main" data-num="{{item.value}}"
+                bindtap="toggleBall">
+            <text wx:if="{{ballStates['main'][item.value + ''] === 2}}">✕</text>
+            <text wx:else>{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="pool-section" wx:if="{{selectedDef.extra}}">
+        <text class="pool-label">{{selectedDef.extra[4]}}</text>
+        <view class="ball-grid">
+          <view class="ball-sel {{ballStates['extra'][item.value + ''] === 1 ? 'picked extra-picked' : ballStates['extra'][item.value + ''] === 2 ? 'excluded' : ''}}"
+                wx:for="{{extraRange}}" wx:key="value"
+                data-prefix="extra" data-num="{{item.value}}"
+                bindtap="toggleBall">
+            <text wx:if="{{ballStates['extra'][item.value + ''] === 2}}">✕</text>
+            <text wx:else>{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- ========== 和值/跨度 ========== -->
+    <block wx:if="{{curMethod === 'sum' || curMethod === 'sum3d' || curMethod === 'span3d'}}">
+      <view class="config-row">
+        <text class="config-label">{{curMethod === 'span3d' ? '目标跨度' : '目标和值'}}</text>
+        <input class="config-input" type="number" value="{{config.sumTarget}}" data-key="sumTarget" bindinput="onConfigNumber" />
+        <text class="config-hint" wx:if="{{curMethod === 'sum3d'}}">常见10-17</text>
+        <text class="config-hint" wx:elif="{{curMethod === 'span3d'}}">常见 3-7</text>
+        <text class="config-hint" wx:else>历史均值{{selectedDef.sumMean}}±{{selectedDef.sumStd}}</text>
+      </view>
+    </block>
+
+    <!-- ========== 奇偶比 ========== -->
+    <block wx:if="{{curMethod === 'oddeven'}}">
+      <view class="config-row">
+        <text class="config-label">奇:偶</text>
+        <picker range="{{oddEvenOptions}}" value="{{oddEvenIndex}}" bindchange="onOddEvenPicker">
+          <view class="config-pick">{{config.oddEvenTarget || '不限'}}</view>
+        </picker>
+      </view>
+    </block>
+
+    <!-- ========== 区间选号 ========== -->
+    <block wx:if="{{curMethod === 'zone' && selectedDef.zones}}">
+      <view class="config-hint-box">
+        <text class="config-hint-text">点击区间选择出号区域（可多选），不选则自动覆盖全部区间</text>
+      </view>
+      <view class="zone-row">
+        <view wx:for="{{selectedDef.zoneNames}}" wx:key="zi" wx:for-index="zi" class="zone-tag {{selectedZoneTags[zi] ? 'on' : ''}}" data-idx="{{zi}}" bindtap="toggleZone3">{{item}}</view>
+      </view>
+    </block>
+
+    <!-- ========== 连号倾向 ========== -->
+    <block wx:if="{{curMethod === 'consec'}}">
+      <view class="config-row">
+        <text class="config-label">连号</text>
+        <picker range="{{['正常','偏好连号','避免连号']}}" value="{{config.consecPref === 'normal' ? 0 : config.consecPref === 'more' ? 1 : 2}}" bindchange="onConsecPicker">
+          <view class="config-pick">{{config.consecPref === 'normal' ? '正常' : config.consecPref === 'more' ? '偏好连号' : '避免连号'}}</view>
+        </picker>
+      </view>
+    </block>
+
+    <!-- ========== 快8玩法选择 ========== -->
+    <block wx:if="{{curMethod === 'playN'}}">
+      <view class="config-row">
+        <text class="config-label">玩法</text>
+        <picker range="{{[1,2,3,4,5,6,7,8,9,10]}}" value="{{config.playN - 1}}" bindchange="onPlayNPicker">
+          <view class="config-pick">选{{config.playN || 10}}</view>
+        </picker>
+      </view>
+    </block>
+
+    <!-- ========== 3D直选 / 排列三直选 ========== -->
+    <block wx:if="{{curMethod === 'straight' && (selectedId === 'fc3d' || selectedId === 'pl3')}}">
+      <view class="config-hint-box">
+        <text class="config-hint-text">每位0-9独立选取，点击数字选中/取消</text>
+      </view>
+      <view class="pos-section" wx:for="{{[0,1,2]}}" wx:key="pi" wx:for-index="pi">
+        <text class="pos-label">{{['百位','十位','个位'][item]}}</text>
+        <view class="ball-grid">
+          <view class="ball-sel {{straightHighlights[item][item2] ? 'picked' : ''}}"
+                wx:for="{{10}}" wx:key="di" wx:for-item="item2" wx:for-index="di"
+                data-wkey="w{{item + 1}}" data-num="{{item2}}"
+                bindtap="toggleDigit">{{item2}}</view>
+        </view>
+      </view>
+    </block>
+
+    <!-- ========== 七星复式（前六位/最后一位/全复式） ========== -->
+    <block wx:if="{{selectedId === 'qxc' && (curMethod === 'qxc_front' || curMethod === 'qxc_last' || curMethod === 'qxc_full')}}">
+      <view class="config-hint-box">
+        <text class="config-hint-text">{{curMethod === 'qxc_front' ? '前六位可多选，最后一位单选' : curMethod === 'qxc_last' ? '前六位单选，最后一位可多选' : '七位均可多选'}}，点击数字选中/取消</text>
+      </view>
+      <view class="pos-section" wx:for="{{[0,1,2,3,4,5,6]}}" wx:key="qi" wx:for-index="qi">
+        <text class="pos-label">{{['第1位','第2位','第3位','第4位','第5位','第6位','第7位'][item]}}</text>
+        <view class="ball-grid">
+          <view class="ball-sel {{qxcHighlights[item][item2] ? 'picked' : ''}}"
+                wx:for="{{[0,1,2,3,4,5,6,7,8,9]}}" wx:key="item2" wx:for-item="item2"
+                data-wkey="w{{item + 1}}" data-num="{{item2}}"
+                bindtap="toggleDigit">{{item2}}</view>
+        </view>
+      </view>
+    </block>
+
+    <!-- ========== 组三 / 组六 ========== -->
+    <block wx:if="{{curMethod === 'group3' || curMethod === 'group6'}}">
+      <view class="config-hint-box">
+        <text class="config-hint-text">{{curMethod === 'group3' ? '组三 (一对+单号) 从0-9中选取，与示例号相同（顺序不限）即中奖' : '组六 (三个不同号) 从0-9中选取，与示例号相同（顺序不限）即中奖'}}</text>
+      </view>
+    </block>
+
+    <!-- ========== 排列五定位选号（直选 ball-grid 风格） ========== -->
+    <block wx:if="{{curMethod === 'position' && selectedId === 'pl5'}}">
+      <view class="config-hint-box">
+        <text class="config-hint-text">每位0-9独立选取，点击数字选中/取消，未选位置随机生成</text>
+      </view>
+      <view class="pos-section" wx:for="{{[0,1,2,3,4]}}" wx:key="pi" wx:for-index="pi">
+        <text class="pos-label">第{{item + 1}}位</text>
+        <view class="ball-grid">
+          <view class="ball-sel {{straightHighlights[item][item2] ? 'picked' : ''}}"
+                wx:for="{{10}}" wx:key="di" wx:for-item="item2" wx:for-index="di"
+                data-wkey="w{{item + 1}}" data-num="{{item2}}"
+                bindtap="toggleDigit">{{item2}}</view>
+        </view>
+      </view>
+    </block>
+
+    <!-- ========== 3D奇偶形态（标签按钮风格，同区间选号） ========== -->
+    <block wx:if="{{curMethod === 'oddeven3d'}}">
+      <view class="config-hint-box">
+        <text class="config-hint-text">点击选择形态，奇奇奇/偶偶偶等8种组合</text>
+      </view>
+      <view class="zone-row">
+        <view class="zone-tag {{config.oddEven3D === '' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="">不限</view>
+        <view class="zone-tag {{config.oddEven3D === '奇奇奇' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="奇奇奇">奇奇奇</view>
+        <view class="zone-tag {{config.oddEven3D === '奇奇偶' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="奇奇偶">奇奇偶</view>
+        <view class="zone-tag {{config.oddEven3D === '奇偶奇' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="奇偶奇">奇偶奇</view>
+        <view class="zone-tag {{config.oddEven3D === '偶奇奇' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="偶奇奇">偶奇奇</view>
+        <view class="zone-tag {{config.oddEven3D === '奇偶偶' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="奇偶偶">奇偶偶</view>
+        <view class="zone-tag {{config.oddEven3D === '偶奇偶' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="偶奇偶">偶奇偶</view>
+        <view class="zone-tag {{config.oddEven3D === '偶偶奇' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="偶偶奇">偶偶奇</view>
+        <view class="zone-tag {{config.oddEven3D === '偶偶偶' ? 'on' : ''}}" bindtap="onOE3DTag" data-val="偶偶偶">偶偶偶</view>
+      </view>
+    </block>
+
+    <!-- ========== 3D大小形态（标签按钮风格，同区间选号） ========== -->
+    <block wx:if="{{curMethod === 'bigsmall'}}">
+      <view class="config-hint-box">
+        <text class="config-hint-text">大=5-9 小=0-4，点击选择形态</text>
+      </view>
+      <view class="zone-row">
+        <view class="zone-tag {{config.bigSmall3D === '' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="">不限</view>
+        <view class="zone-tag {{config.bigSmall3D === '大大大' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="大大大">大大大</view>
+        <view class="zone-tag {{config.bigSmall3D === '大大小' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="大大小">大大小</view>
+        <view class="zone-tag {{config.bigSmall3D === '大小大' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="大小大">大小大</view>
+        <view class="zone-tag {{config.bigSmall3D === '小大大' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="小大大">小大大</view>
+        <view class="zone-tag {{config.bigSmall3D === '大小小' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="大小小">大小小</view>
+        <view class="zone-tag {{config.bigSmall3D === '小大小' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="小大小">小大小</view>
+        <view class="zone-tag {{config.bigSmall3D === '小小大' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="小小大">小小大</view>
+        <view class="zone-tag {{config.bigSmall3D === '小小小' ? 'on' : ''}}" bindtap="onBS3DTag" data-val="小小小">小小小</view>
+      </view>
+    </block>
+
+    <!-- ========== 去重开关（所有玩法通用） ========== -->
+    <view class="dedup-row" bindtap="toggleDedup">
+      <view class="dedup-sw {{dedupEnabled ? 'on' : ''}}"></view>
+      <view class="dedup-text-group">
+        <text class="dedup-text">历史去重 · {{dedupEnabled ? '已开启' : '已关闭'}}</text>
+        <text class="dedup-desc">{{dedupEnabled ? '同一批次内自动过滤重复号码组合' : '允许生成相同组合，不做去重检查'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 注数和生成 -->
+  <view class="action-row">
+    <text class="action-label">注数</text>
+    <view class="stepper">
+      <text class="step-btn" data-delta="-1" bindtap="changeCount">−</text>
+      <text class="step-val">{{count}}</text>
+      <text class="step-btn" data-delta="1" bindtap="changeCount">+</text>
+    </view>
+    <button class="gen-btn" bindtap="generate">智能随机</button>
+  </view>
+
+  <!-- 批次统计 -->
+  <view class="stats-bar" wx:if="{{hasGenerated}}">
+    <text>本组已随机 <text class="num">{{batchTotal}}</text> 注</text>
+    <text>重复 <text class="dup">{{batchDup}}</text> 注</text>
+  </view>
+
+  <!-- 结果列表 -->
+  <view class="results" wx:if="{{hasGenerated}}">
+    <view class="result-card" wx:for="{{results}}" wx:key="fingerprint" catchtap="copyResult" data-idx="{{index}}">
+      <view class="result-header">
+        <text class="result-idx">第 {{index + 1}} 注<text wx:if="{{item.saved}}" class="saved-badge"> ✓已保存</text></text>
+        <view class="result-actions">
+          <text class="result-star" catchtap="toggleStar" data-idx="{{index}}">{{item.starred ? '⭐' : '☆'}}</text>
+          <view class="score-wrap">
+            <text class="score-label">代表性</text>
+            <view class="score-ring" style="background: conic-gradient({{item.score.color}} {{item.score.overall * 3.6}}deg, #1A1E32 {{item.score.overall * 3.6}}deg)">
+              <text class="score-text">{{item.score.overall}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="result-balls">
+        <view class="rball" style="background: {{selectedDef.main[3]}}" wx:for="{{item.result.main}}" wx:key="idx" wx:for-index="idx">
+          <text>{{item}}</text>
+        </view>
+        <text class="rsep" wx:if="{{item.result.extra && item.result.extra.length}}">+</text>
+        <view class="rball" style="background: {{selectedDef.extra ? selectedDef.extra[3] : '#3182CE'}}" wx:for="{{item.result.extra || []}}" wx:key="eidx" wx:for-index="eidx">
+          <text>{{item}}</text>
+        </view>
+      </view>
+      <view class="result-dims">
+        <view class="rdim" wx:for="{{item.score.dimList}}" wx:key="name">
+          <text class="rdim-label">{{item.name}}</text>
+          <view class="rdim-bar">
+            <view class="rdim-fill" style="width: {{item.value}}%; background: {{item.color}}"></view>
+          </view>
+          <text class="rdim-val">{{item.value}}</text>
+        </view>
+      </view>
+      <text class="copy-hint">点击复制号码</text>
+    </view>
+
+    <!-- 导出按钮 -->
+    <view class="export-area">
+      <button class="export-doc-btn" bindtap="showExportDoc">导出全部号码文档（{{allHistory.length}}注）</button>
+      <button class="export-analysis-btn" bindtap="showExportAnalysis">导出随机号码统计报告</button>
+    </view>
+
+    <!-- 保存按钮 -->
+    <button class="save-all-btn" bindtap="saveAll">保存当前所有号码</button>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+  </view>
+
+  <text class="disclaimer">仅供参考 · 理性娱乐 · 量力而行</text>
+
+</view>
+
+<!-- 广告弹窗 -->
+<view class="ad-overlay {{adShow ? 'show' : ''}}" catchtap="closeAdOutside">
+  <view class="ad-modal">
+    <view class="ad-header">观看广告后可导出</view>
+    <view class="ad-body">
+      <view class="ad-placeholder">
+        <text class="ad-icon">📢</text>
+        <text class="ad-text">智能随机 · 理性娱乐</text>
+        <text class="ad-sub">减少无效随机，每一组都值得认真筛选</text>
+      </view>
+      <text class="ad-countdown" wx:if="{{adCountdown > 0}}">⏱ {{adCountdown}}</text>
+      <text class="ad-countdown done" wx:else>✅ 广告已完成</text>
+    </view>
+    <button class="ad-close-btn {{adCountdown > 0 ? 'disabled' : ''}}" disabled="{{adCountdown > 0}}" bindtap="closeAd">
+      关闭广告并导出
+    </button>
+  </view>
+</view>

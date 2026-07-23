@@ -1,0 +1,154 @@
+<view class="container">
+  <!-- Logo 区域 -->
+  <view class="logo-section">
+    <view class="logo-outer">
+      <view class="logo-inner">
+        <view class="logo-dots">
+          <view class="col">
+            <view class="dot dot-white"></view>
+            <view class="dot dot-cyan"></view>
+          </view>
+          <view class="col col-mid">
+            <view class="dot dot-white-lg"></view>
+            <view class="dot dot-yellow"></view>
+          </view>
+          <view class="col">
+            <view class="dot dot-pink"></view>
+            <view class="dot dot-white-sm"></view>
+          </view>
+        </view>
+      </view>
+      <view class="logo-badge">✨</view>
+    </view>
+    <text class="logo-title">智能随机助手</text>
+    <text class="logo-subtitle">随机生成 · 示例数据 · 理性参考</text>
+  </view>
+
+  <!-- 玩法选择网格 -->
+  <view class="card">
+    <view class="card-header">
+      <text class="card-title">选择玩法</text>
+    </view>
+    <view class="type-grid">
+      <view class="type-item {{selectedTypeId === item.id ? 'active' : ''}}" 
+            wx:for="{{lotteryTypes}}" 
+            wx:key="id"
+            bindtap="onSelectType"
+            data-id="{{item.id}}"
+            >
+        <view class="type-icon-wrapper">
+          <view class="lottery-icon {{item.iconClass}}">
+            <text class="lottery-icon-text">{{item.iconText || item.icon}}</text>
+          </view>
+        </view>
+        <text class="type-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最新示例结果 -->
+  <view class="card" wx:if="{{latestResult}}">
+    <view class="latest-header">
+      <view class="latest-title-group">
+        <view class="latest-type-icon-wrapper">
+          <view class="lottery-icon lottery-icon-sm {{selectedTypeObj.iconClass}}">
+            <text class="lottery-icon-text lottery-icon-text-sm">{{selectedTypeObj.iconText || selectedTypeObj.icon}}</text>
+          </view>
+        </view>
+        <view class="latest-text-group">
+          <view class="latest-title-row">
+            <text class="latest-title">{{latestResult.type}}</text>
+            <text class="latest-period">{{latestResult.period}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="latest-actions">
+        <view class="btn-analysis" wx:if="{{selectedTypeId !== 'fc3d' && selectedTypeId !== 'pl3' && selectedTypeId !== 'pl5' && selectedTypeId !== 'kl8'}}" catchtap="goAnalysis">
+           <text class="btn-analysis-text">数字洞察</text>
+         </view>
+         <view class="btn-history" catchtap="goResult">
+           <text class="btn-history-text">查看详情</text>
+        </view>
+      </view>
+    </view>
+    <view class="latest-numbers-area" catchtap="goResult">
+      <view class="generic-numbers">
+        <view wx:for="{{latestResult.flatBalls}}" wx:for-item="ball" wx:key="fi" wx:for-index="fi" style="width: {{latestResult.ballSize}}rpx; height: {{latestResult.ballSize}}rpx; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.15); position: relative; background: {{ball.ballStyle}};">
+          <text style="font-size: {{latestResult.ballFontSize}}rpx; font-weight: 800; color: #ffffff; line-height: 1; z-index: 1;">{{ball.num}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 智能随机按钮 -->
+  <view class="random-actions">
+    <view class="random-btn" bindtap="onRandomSelect">
+      <text class="random-text">智能随机</text>
+    </view>
+  </view>
+
+  <!-- 数字列表 -->
+  <view class="card lottery-list-card">
+    <view class="lottery-list">
+      <view class="lottery-list-item" 
+            wx:for="{{lotteryTypes}}" 
+            wx:key="id"
+            bindtap="onChooseType"
+            data-name="{{item.name}}"
+            style="border-bottom: {{index < lotteryTypes.length - 1 ? '1rpx solid #f3f4f6' : 'none'}};">
+        <view class="lottery-list-left">
+          <view class="lottery-list-icon" style="background: {{item.bg}};">
+            <block wx:if="{{item.id === 'lhc'}}">
+              <text class="lottery-list-icon-text">六</text>
+            </block>
+            <block wx:elif="{{item.id === 'ssq'}}">
+              <view class="list-dots">
+                <view class="list-dot-white"></view>
+                <view class="list-dot-white light"></view>
+              </view>
+            </block>
+            <block wx:elif="{{item.id === 'dlt'}}">
+              <text class="lottery-list-icon-text">大</text>
+            </block>
+            <block wx:elif="{{item.id === 'qlc'}}">
+              <text class="lottery-list-icon-text">七</text>
+            </block>
+            <block wx:elif="{{item.id === 'qxc'}}">
+              <text class="lottery-list-icon-text">★</text>
+            </block>
+            <block wx:elif="{{item.id === 'fc3d'}}">
+              <view class="list-bars-white">
+                <view class="list-bar-w"></view>
+                <view class="list-bar-w"></view>
+                <view class="list-bar-w"></view>
+              </view>
+            </block>
+            <block wx:elif="{{item.id === 'pl3'}}">
+              <text class="lottery-list-icon-text">3</text>
+            </block>
+            <block wx:elif="{{item.id === 'pl5'}}">
+              <text class="lottery-list-icon-text">5</text>
+            </block>
+            <block wx:elif="{{item.id === 'kl8'}}">
+              <text class="lottery-list-icon-text">8</text>
+            </block>
+          </view>
+          <view class="lottery-list-info">
+            <view class="lottery-list-name-row">
+              <text class="lottery-list-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="lottery-list-right">
+          <text class="lottery-list-action">去生成</text>
+          <text class="lottery-list-arrow">›</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 免责声明 -->
+  <text class="disclaimer">本工具仅供娱乐参考，不对应任何现实业务场景</text>
+
+  <tabbar />
+</view>

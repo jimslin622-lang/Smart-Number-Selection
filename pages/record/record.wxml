@@ -1,0 +1,77 @@
+<view class="container">
+  <view class="header">
+    <text class="title">我的数字</text>
+    <text class="clear-btn" bindtap="clearHistory" wx:if="{{allHistory.length > 0}}">清空</text>
+  </view>
+
+  <!-- 玩法筛选 -->
+  <scroll-view scroll-x class="lottery-scroll" enhanced show-scrollbar="{{false}}" wx:if="{{lotteryOptions.length > 0}}">
+    <view class="lottery-tabs">
+      <view class="lottery-tab {{lotteryFilter === 'all' ? 'active' : ''}}" data-code="all" bindtap="switchLottery">全部</view>
+      <view class="lottery-tab {{lotteryFilter === item.id ? 'active' : ''}}" wx:for="{{lotteryOptions}}" wx:key="id" data-code="{{item.id}}" bindtap="switchLottery">{{item.name}}</view>
+    </view>
+  </scroll-view>
+
+  <!-- 收藏/全部筛选 -->
+  <view class="filter-tabs" wx:if="{{lotteryOptions.length > 0}}">
+    <view class="filter-tab {{filter === item.key ? 'active' : ''}}"
+          wx:for="{{filterTabs}}"
+          wx:key="key"
+          bindtap="switchFilter"
+          data-filter="{{item.key}}">
+      {{item.label}}
+    </view>
+  </view>
+
+  <view class="count-bar" wx:if="{{lotteryOptions.length > 0}}">
+    <text class="count-text">{{filter === 'favorite' ? '收藏' : '全部'}} {{history.length}} 条记录</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view class="empty" wx:elif="{{history.length === 0}}">
+    <text class="empty-icon">📝</text>
+    <text class="empty-text">{{lotteryFilter !== 'all' ? '该玩法暂无记录' : (filter === 'favorite' ? '暂无收藏记录' : '暂无数字记录')}}</text>
+    <text class="empty-tip">{{lotteryFilter !== 'all' ? '试试切换其他玩法' : (filter === 'favorite' ? '点击记录里的星标即可收藏' : '保存随机生成后，会在这里展示')}}</text>
+    <view class="empty-action" bindtap="goHome">去首页生成</view>
+  </view>
+
+  <view class="list" wx:else>
+    <view class="item" wx:for="{{history}}" wx:key="id">
+      <view class="item-header">
+        <view class="item-tag" style="background: {{item.typeBg}};">
+          <text class="item-tag-text">{{item.type}}</text>
+        </view>
+        <text class="item-time">{{item.time}}</text>
+        <view class="item-actions">
+          <text class="item-star" bindtap="toggleFavorite" data-id="{{item.id}}">{{item.favorite ? '⭐' : '☆'}}</text>
+          <view class="item-copy" bindtap="copyRecord" data-id="{{item.id}}">
+            <text class="item-copy-text">复制</text>
+          </view>
+          <view class="item-delete" bindtap="deleteRecord" data-id="{{item.id}}">
+            <text class="item-delete-icon">🗑️</text>
+          </view>
+        </view>
+      </view>
+      <view class="item-numbers-box">
+        <view class="item-numbers-row">
+          <view class="item-balls">
+            <block wx:for="{{item.ballList}}" wx:for-item="b" wx:key="index">
+              <view wx:if="{{b.sep}}" class="item-ball-sep"></view>
+              <view wx:else class="item-ball" style="background: {{b.bg}};">
+                <text class="item-ball-text">{{b.num}}</text>
+              </view>
+            </block>
+          </view>
+          <view class="item-score" wx:if="{{item.score > 0}}">
+            <text class="item-score-text">代表性 {{item.score}}/100</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <tabbar />
+</view>

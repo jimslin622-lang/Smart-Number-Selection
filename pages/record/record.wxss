@@ -1,0 +1,218 @@
+.container {
+  padding: 24rpx;
+  background: #f3f4f6;
+  min-height: 100vh;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+.title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #1f2937;
+}
+.clear-btn {
+  font-size: 26rpx;
+  color: #dc2626;
+}
+
+/* 玩法筛选 */
+.lottery-scroll { margin-bottom: 16rpx; width: 100%; overflow: hidden; }
+.lottery-tabs { display: flex; gap: 10rpx; }
+.lottery-tab {
+  flex-shrink: 0; padding: 10rpx 22rpx; border-radius: 20rpx;
+  font-size: 24rpx; font-weight: 500;
+  background: #ffffff; color: #6b7280; border: 1px solid #e5e7eb;
+}
+.lottery-tab.active { background: #22c55e; color: #ffffff; border-color: #22c55e; }
+
+.filter-tabs {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+.filter-tab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 26rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.filter-tab.active {
+  background: #22c55e;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.count-bar {
+  margin-bottom: 16rpx;
+}
+.count-text {
+  font-size: 24rpx;
+  color: #9ca3af;
+}
+
+.loading {
+  text-align: center;
+  padding: 80rpx 0;
+}
+.loading-text {
+  font-size: 26rpx;
+  color: #9ca3af;
+}
+
+.empty {
+  text-align: center;
+  padding: 120rpx 0;
+}
+.empty-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 16rpx;
+}
+.empty-text {
+  display: block;
+  font-size: 28rpx;
+  color: #9ca3af;
+  margin-bottom: 8rpx;
+}
+.empty-tip {
+  display: block;
+  font-size: 24rpx;
+  color: #d1d5db;
+  margin-bottom: 28rpx;
+}
+.empty-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18rpx 34rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 500;
+  box-shadow: 0 4rpx 16rpx rgba(34,197,94,0.25);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.item {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+.item-tag {
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.item-tag-text {
+  font-size: 24rpx;
+  color: #ffffff;
+  font-weight: 500;
+}
+.item-method {
+  font-size: 20rpx;
+  color: #6b7280;
+  margin-left: 12rpx;
+}
+.item-time {
+  font-size: 22rpx;
+  color: #9ca3af;
+  flex: 1;
+  margin-left: 16rpx;
+}
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.item-star {
+  font-size: 34rpx;
+  padding: 6rpx;
+}
+.item-copy {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: #ecfdf5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.item-copy-text {
+  font-size: 22rpx;
+  color: #16a34a;
+}
+.item-delete {
+  padding: 8rpx;
+}
+.item-delete-icon {
+  font-size: 28rpx;
+  color: #d1d5db;
+}
+.item-numbers-box {
+  background: #f9fafb;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+.item-numbers-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48rpx;
+}
+.item-balls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  align-items: center;
+}
+.item-ball {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3rpx 8rpx rgba(0,0,0,0.15), inset 0 -2rpx 3rpx rgba(0,0,0,0.2), inset 0 2rpx 3rpx rgba(255,255,255,0.1);
+}
+.item-ball-text {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+.item-ball-sep {
+  width: 12rpx;
+}
+.item-score {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  display: flex;
+  align-items: center;
+}
+.item-score-text {
+  font-size: 22rpx;
+  color: #6b7280;
+}

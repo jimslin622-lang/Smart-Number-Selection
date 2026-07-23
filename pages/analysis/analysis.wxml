@@ -1,0 +1,568 @@
+<view class="container">
+  <view class="hero-card">
+    <view>
+       <text class="hero-title">{{selectedType}} 数字洞察</text>
+      <text class="hero-subtitle">历史 {{historyCount}} 组 · {{drawDaysText}}示例</text>
+    </view>
+    <view class="hero-badge">{{selectedId === 'lhc' ? '六' : selectedId === 'ssq' ? '双' : ''}}</view>
+  </view>
+
+  <!-- 统计面板 -->
+  <view class="card stat-panel" wx:if="{{selectedId === 'lhc' || selectedId === 'ssq' || selectedId === 'dlt' || selectedId === 'qlc' || selectedId === 'qxc'}}">
+    <view class="section-header">
+      <view>
+        <text class="section-title">随机参考统计</text>
+        <text class="section-sub block">{{statRangeText}}</text>
+      </view>
+      <view class="mode-switch">
+        <view class="mode-btn {{statMode === 'miss' ? 'active' : ''}}" bindtap="switchStatMode" data-mode="miss">遗漏</view>
+        <view class="mode-btn {{statMode === 'freq' ? 'active' : ''}}" bindtap="switchStatMode" data-mode="freq">次数</view>
+      </view>
+    </view>
+    <view class="stat-period-bar">
+      <view class="toolbar-btn {{statPeriodCount === 1 ? 'active' : ''}}" bindtap="setStatPeriod" data-count="1">近1组</view>
+      <view class="toolbar-btn {{statPeriodCount === 50 ? 'active' : ''}}" bindtap="setStatPeriod" data-count="50">近50组</view>
+      <view class="toolbar-btn {{statPeriodCount === 100 ? 'active' : ''}}" bindtap="setStatPeriod" data-count="100">近100组</view>
+      <view class="toolbar-btn {{statPeriodCount === 200 ? 'active' : ''}}" bindtap="setStatPeriod" data-count="200">近200组</view>
+      <view class="toolbar-btn {{statPeriodCount === 500 ? 'active' : ''}}" bindtap="setStatPeriod" data-count="500">近500组</view>
+    </view>
+
+    <view class="stat-cards">
+      <view class="stat-card" wx:for="{{statCards}}" wx:key="label">
+        <text class="stat-card-label">{{item.label}}</text>
+        <text class="stat-card-value">{{item.value}}</text>
+        <text class="stat-card-tip">{{item.tip}}</text>
+      </view>
+    </view>
+
+    <!-- 六合彩号码统计网格 -->
+    <block wx:if="{{selectedId === 'lhc'}}">
+      <view class="ball-stat-grid">
+        <view class="ball-stat-item" wx:for="{{statBalls}}" wx:key="num">
+          <view class="lhc-outline-ball {{item.color}}">
+            <text class="lhc-outline-num">{{item.num}}</text>
+          </view>
+          <text class="ball-stat-value">{{item.value}}</text>
+        </view>
+      </view>
+      <text class="range-note">{{statPeriodText}} · 数字下方为{{statMode === 'miss' ? '当前遗漏组数' : '出现次数'}}</text>
+    </block>
+
+    <!-- 双色红球统计网格 -->
+    <block wx:if="{{selectedId === 'ssq'}}">
+      <text class="section-sub-title">红球</text>
+      <view class="ball-stat-grid">
+        <view class="ball-stat-item" wx:for="{{statBalls}}" wx:key="num">
+          <view class="lhc-outline-ball red">
+            <text class="lhc-outline-num">{{item.num}}</text>
+          </view>
+          <text class="ball-stat-value">{{item.value}}</text>
+        </view>
+      </view>
+      <text class="range-note">{{statPeriodText}} · 数字下方为{{statMode === 'miss' ? '当前遗漏组数' : '出现次数'}}</text>
+
+      <text class="section-sub-title" style="margin-top: 20rpx;">蓝球</text>
+      <view class="ball-stat-grid">
+        <view class="ball-stat-item" wx:for="{{blueStats}}" wx:key="num">
+          <view class="lhc-outline-ball blue">
+            <text class="lhc-outline-num">{{item.num}}</text>
+          </view>
+          <text class="ball-stat-value">{{item.value}}</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 乐透前区统计网格 -->
+    <!-- 乐透前区/后区统计网格 -->
+    <block wx:if="{{selectedId === 'dlt'}}">
+      <text class="section-sub-title">前区</text>
+      <view class="ball-stat-grid">
+        <view class="ball-stat-item" wx:for="{{statBalls}}" wx:key="num">
+          <view class="lhc-outline-ball orange">
+            <text class="lhc-outline-num">{{item.num}}</text>
+          </view>
+          <text class="ball-stat-value">{{item.value}}</text>
+        </view>
+      </view>
+      <text class="range-note">{{statPeriodText}} · 数字下方为{{statMode === 'miss' ? '当前遗漏组数' : '出现次数'}}</text>
+
+      <text class="section-sub-title" style="margin-top: 20rpx;">后区</text>
+      <view class="ball-stat-grid">
+        <view class="ball-stat-item" wx:for="{{backStats}}" wx:key="num">
+          <view class="lhc-outline-ball blue">
+            <text class="lhc-outline-num">{{item.num}}</text>
+          </view>
+          <text class="ball-stat-value">{{item.value}}</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 七乐号码统计网格 -->
+    <block wx:if="{{selectedId === 'qlc'}}">
+      <text class="section-sub-title">号码</text>
+      <view class="ball-stat-grid">
+        <view class="ball-stat-item" wx:for="{{statBalls}}" wx:key="num">
+          <view class="lhc-outline-ball red">
+            <text class="lhc-outline-num">{{item.num}}</text>
+          </view>
+          <text class="ball-stat-value">{{item.value}}</text>
+        </view>
+      </view>
+      <text class="range-note">{{statPeriodText}} · 数字下方为{{statMode === 'miss' ? '当前遗漏组数' : '出现次数'}}</text>
+    </block>
+
+    <view class="rank-section">
+      <view class="rank-block">
+        <text class="rank-title hot">{{selectedId === 'lhc' ? '高频号码' : selectedId === 'dlt' ? '前区热门' : selectedId === 'qxc' ? '前区热门' : '红球热门'}}</text>
+        <view class="rank-list">
+          <view class="rank-chip {{item.color}}" wx:for="{{hotNumbers}}" wx:key="num">
+            <text class="rank-num">{{item.num}}</text>
+            <text class="rank-count">{{item.count}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="rank-block">
+        <text class="rank-title cold">{{selectedId === 'lhc' ? '低频号码' : selectedId === 'dlt' ? '前区冷门' : selectedId === 'qxc' ? '前区冷门' : '红球冷门'}}</text>
+        <view class="rank-list">
+          <view class="rank-chip cold-chip {{item.color}}" wx:for="{{coldNumbers}}" wx:key="num">
+            <text class="rank-num">{{item.num}}</text>
+            <text class="rank-count">{{item.count}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="rank-block">
+         <text class="rank-title special">{{selectedId === 'lhc' ? '幸运号热门' : selectedId === 'dlt' ? '后区热门' : selectedId === 'qxc' ? '后区热门' : '蓝球热门'}}</text>
+        <view class="rank-list">
+          <view class="rank-chip special-chip {{item.color}}" wx:for="{{specialHotNumbers}}" wx:key="num">
+            <text class="rank-num">{{item.num}}</text>
+            <text class="rank-count">{{item.count}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="color-stat-row" wx:if="{{selectedId === 'lhc'}}">
+      <view class="color-stat {{item.color}}" wx:for="{{colorStats}}" wx:key="name">
+        <text class="color-stat-name">{{item.name}}</text>
+        <text class="color-stat-value">{{item.count}}</text>
+        <text class="color-stat-percent">{{item.percent}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 六合彩走势图 -->
+  <view class="card trend-card" wx:if="{{selectedId === 'lhc'}}">
+    <view class="section-header trend-head">
+      <view>
+        <text class="section-title">号码走势图</text>
+        <text class="section-sub block">{{trendRangeText}}</text>
+      </view>
+      <view class="landscape-btn" bindtap="openLandscape">横屏查看</view>
+    </view>
+
+    <view class="trend-toolbar">
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{trendPeriodCount === 20 ? 'active' : ''}}" bindtap="setTrendCount" data-count="20">近20组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 30 ? 'active' : ''}}" bindtap="setTrendCount" data-count="30">近30组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 50 ? 'active' : ''}}" bindtap="setTrendCount" data-count="50">近50组</view>
+      </view>
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{showSpecial ? 'active red' : ''}}" bindtap="toggleSpecial">特码</view>
+        <view class="toolbar-btn {{showMiss ? 'active blue' : ''}}" bindtap="toggleMiss">遗漏</view>
+      </view>
+    </view>
+
+    <scroll-view scroll-x class="trend-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{trendHeaders}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">示例号</view>
+        </view>
+
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}} {{cell.isSpecial && showSpecial ? 'special-hit' : ''}}" wx:for="{{row.cells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball {{cell.color}} {{cell.isSpecial && showSpecial ? 'special' : ''}}">
+                <text>{{cell.num}}</text>
+              </view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.mainText}}</text>
+            <text class="special-code">特 {{row.specialText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="legend-row">
+      <view class="legend-item"><view class="legend-ball red"></view><text>红波</text></view>
+      <view class="legend-item"><view class="legend-ball blue"></view><text>蓝波</text></view>
+      <view class="legend-item"><view class="legend-ball green"></view><text>绿波</text></view>
+       <view class="legend-item"><view class="legend-ball special"></view><text>幸运号</text></view>
+    </view>
+  </view>
+
+  <!-- 双色走势图 -->
+  <view class="card trend-card" wx:if="{{selectedId === 'ssq'}}">
+    <view class="section-header trend-head">
+      <view>
+        <text class="section-title">红球走势图</text>
+        <text class="section-sub block">{{trendRangeText}}</text>
+      </view>
+    </view>
+
+    <view class="trend-toolbar">
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{trendPeriodCount === 20 ? 'active' : ''}}" bindtap="setTrendCount" data-count="20">近20组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 30 ? 'active' : ''}}" bindtap="setTrendCount" data-count="30">近30组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 50 ? 'active' : ''}}" bindtap="setTrendCount" data-count="50">近50组</view>
+      </view>
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{showMiss ? 'active blue' : ''}}" bindtap="toggleMiss">遗漏</view>
+      </view>
+    </view>
+
+    <scroll-view scroll-x class="trend-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{trendHeaders}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">示例号</view>
+        </view>
+
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}}" wx:for="{{row.redCells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball red"><text>{{cell.num}}</text></view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.mainText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="section-title" style="margin-top: 30rpx;">蓝球走势图</view>
+    <scroll-view scroll-x class="trend-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{SSQ_BLUE_HEADERS}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">蓝球</view>
+        </view>
+
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}}" wx:for="{{row.blueCells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball blue"><text>{{cell.num}}</text></view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.specialText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="legend-row">
+      <view class="legend-item"><view class="legend-ball red"></view><text>红球</text></view>
+      <view class="legend-item"><view class="legend-ball blue"></view><text>蓝球</text></view>
+    </view>
+  </view>
+
+  <!-- 乐透走势图 -->
+  <view class="card trend-card" wx:if="{{selectedId === 'dlt'}}">
+    <view class="section-header trend-head">
+      <view>
+        <text class="section-title">前区走势图</text>
+        <text class="section-sub block">{{trendRangeText}}</text>
+      </view>
+    </view>
+
+    <view class="trend-toolbar">
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{trendPeriodCount === 20 ? 'active' : ''}}" bindtap="setTrendCount" data-count="20">近20组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 30 ? 'active' : ''}}" bindtap="setTrendCount" data-count="30">近30组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 50 ? 'active' : ''}}" bindtap="setTrendCount" data-count="50">近50组</view>
+      </view>
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{showMiss ? 'active blue' : ''}}" bindtap="toggleMiss">遗漏</view>
+      </view>
+    </view>
+
+    <scroll-view scroll-x class="trend-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{trendHeaders}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">示例号</view>
+        </view>
+
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}}" wx:for="{{row.frontCells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball orange"><text>{{cell.num}}</text></view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.mainText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="section-title" style="margin-top: 30rpx;">后区走势图</view>
+    <scroll-view scroll-x class="trend-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{DLT_BACK_HEADERS}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">后区</view>
+        </view>
+
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}}" wx:for="{{row.backCells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball blue"><text>{{cell.num}}</text></view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.specialText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="legend-row">
+      <view class="legend-item"><view class="legend-ball orange"></view><text>前区</text></view>
+      <view class="legend-item"><view class="legend-ball blue"></view><text>后区</text></view>
+    </view>
+  </view>
+
+  <!-- 七乐走势图 -->
+  <view class="card trend-card" wx:if="{{selectedId === 'qlc'}}">
+    <view class="section-header trend-head">
+      <view>
+        <text class="section-title">号码走势图</text>
+        <text class="section-sub block">{{trendRangeText}}</text>
+      </view>
+    </view>
+    <view class="trend-toolbar">
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{trendPeriodCount === 20 ? 'active' : ''}}" bindtap="setTrendCount" data-count="20">近20组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 30 ? 'active' : ''}}" bindtap="setTrendCount" data-count="30">近30组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 50 ? 'active' : ''}}" bindtap="setTrendCount" data-count="50">近50组</view>
+      </view>
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{showMiss ? 'active blue' : ''}}" bindtap="toggleMiss">遗漏</view>
+      </view>
+    </view>
+    <scroll-view scroll-x class="trend-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{QLC_HEADERS}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">示例号</view>
+        </view>
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}} {{cell.isSpecial ? 'special-hit' : ''}}" wx:for="{{row.cells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball {{cell.color}} {{cell.isSpecial ? 'special' : ''}}"><text>{{cell.num}}</text></view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.mainText}}</text>
+            <text class="special-code">特 {{row.specialText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="legend-row">
+      <view class="legend-item"><view class="legend-ball red"></view><text>号码</text></view>
+       <view class="legend-item"><view class="legend-ball special"></view><text>幸运号</text></view>
+    </view>
+  </view>
+
+  <!-- 七星走势图 -->
+  <view class="card trend-card" wx:if="{{selectedId === 'qxc'}}">
+    <view class="section-header trend-head">
+      <view>
+        <text class="section-title">前区走势图</text>
+        <text class="section-sub block">{{trendRangeText}}</text>
+      </view>
+    </view>
+    <view class="trend-toolbar">
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{trendPeriodCount === 20 ? 'active' : ''}}" bindtap="setTrendCount" data-count="20">近20组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 30 ? 'active' : ''}}" bindtap="setTrendCount" data-count="30">近30组</view>
+        <view class="toolbar-btn {{trendPeriodCount === 50 ? 'active' : ''}}" bindtap="setTrendCount" data-count="50">近50组</view>
+      </view>
+      <view class="toolbar-group">
+        <view class="toolbar-btn {{showMiss ? 'active blue' : ''}}" bindtap="toggleMiss">遗漏</view>
+      </view>
+    </view>
+    <scroll-view scroll-x class="trend-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{QXC_FRONT_HEADERS}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">示例号</view>
+        </view>
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}}" wx:for="{{row.frontCells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball red"><text>{{cell.num}}</text></view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.mainText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="section-title" style="margin-top: 30rpx;">后区走势图</view>
+    <scroll-view scroll-x class="trend-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{QXC_BACK_HEADERS}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">后区</view>
+        </view>
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}}" wx:for="{{row.backCells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball blue"><text>{{cell.num}}</text></view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.specialText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="legend-row">
+      <view class="legend-item"><view class="legend-ball red"></view><text>前区</text></view>
+      <view class="legend-item"><view class="legend-ball blue"></view><text>后区</text></view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{selectedId !== 'lhc' && selectedId !== 'ssq' && selectedId !== 'dlt' && selectedId !== 'qlc' && selectedId !== 'qxc'}}">
+     <text class="section-title">数字洞察</text>
+    <text class="fallback-text">{{fallbackText}}</text>
+  </view>
+
+  <view class="landscape-overlay" wx:if="{{landscapeMode}}">
+    <view class="landscape-header">
+      <view>
+        <text class="landscape-title">6+1模式走势图</text>
+        <text class="landscape-subtitle">{{trendRangeText}}</text>
+      </view>
+      <view class="landscape-close" bindtap="closeLandscape">关闭返回</view>
+    </view>
+
+    <view class="landscape-toolbar">
+      <view class="toolbar-btn {{trendPeriodCount === 20 ? 'active' : ''}}" bindtap="setTrendCount" data-count="20">近20组</view>
+      <view class="toolbar-btn {{trendPeriodCount === 30 ? 'active' : ''}}" bindtap="setTrendCount" data-count="30">近30组</view>
+      <view class="toolbar-btn {{trendPeriodCount === 50 ? 'active' : ''}}" bindtap="setTrendCount" data-count="50">近50组</view>
+      <view class="toolbar-btn {{showSpecial ? 'active red' : ''}}" bindtap="toggleSpecial">特码</view>
+      <view class="toolbar-btn {{showMiss ? 'active blue' : ''}}" bindtap="toggleMiss">遗漏</view>
+    </view>
+
+    <scroll-view scroll-x scroll-y class="landscape-scroll" enhanced show-scrollbar>
+      <view class="lhc-trend-table landscape-table">
+        <view class="trend-row trend-header-row">
+          <view class="period-cell header sticky-left">组号</view>
+          <view class="num-cell header" wx:for="{{trendHeaders}}" wx:key="*this">{{item}}</view>
+          <view class="result-cell header sticky-right">示例号</view>
+        </view>
+
+        <view class="trend-row" wx:for="{{trendRows}}" wx:for-item="row" wx:key="period">
+          <view class="period-cell sticky-left">
+            <text class="period-main">{{row.period}}</text>
+            <text class="period-date">{{row.date}}</text>
+          </view>
+          <view class="num-cell {{cell.hit ? 'hit' : ''}} {{cell.isSpecial && showSpecial ? 'special-hit' : ''}}" wx:for="{{row.cells}}" wx:for-item="cell" wx:key="num">
+            <block wx:if="{{cell.hit}}">
+              <view class="trend-hit-ball {{cell.color}} {{cell.isSpecial && showSpecial ? 'special' : ''}}">
+                <text>{{cell.num}}</text>
+              </view>
+            </block>
+            <block wx:else>
+              <text class="miss-text" wx:if="{{showMiss}}">{{cell.miss}}</text>
+            </block>
+          </view>
+          <view class="result-cell sticky-right">
+            <text class="main-code">{{row.mainText}}</text>
+            <text class="special-code">特 {{row.specialText}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="loading-mask" wx:if="{{loading}}">
+    <view class="loading-box">加载中...</view>
+  </view>
+
+  <text class="disclaimer">统计和走势仅供娱乐参考，不构成任何建议。</text>
+
+</view>

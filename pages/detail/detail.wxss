@@ -1,0 +1,364 @@
+.container {
+  padding: 20rpx 24rpx;
+  background: #ffffff;
+  min-height: 100vh;
+  color: #333333;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* 头部 */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20rpx 0;
+}
+.header-left { display: flex; align-items: center; gap: 12rpx; }
+.header-icon { font-size: 32rpx; }
+.header-title { font-size: 30rpx; font-weight: 700; color: #1f2937; }
+.header-stats { display: flex; gap: 20rpx; font-size: 22rpx; color: #6b7280; }
+.header-stats .num { color: #374151; font-weight: 700; font-size: 24rpx; }
+.header-stats .dup { color: #ef4444; font-weight: 700; font-size: 24rpx; }
+
+/* 上期示例 */
+.last-draw {
+  display: flex; align-items: center; gap: 12rpx;
+  padding: 16rpx 20rpx; background: #f9fafb;
+  border-radius: 16rpx; margin-bottom: 20rpx;
+  border: 1px solid #e5e7eb;
+}
+.last-label { font-size: 22rpx; color: #6b7280; white-space: nowrap; }
+.last-period { font-size: 20rpx; color: #9ca3af; white-space: nowrap; }
+/* 导出按钮 */
+.export-bar {
+  display: flex; gap: 16rpx;
+  margin: 8rpx 0 20rpx 0;
+}
+.export-btn {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8rpx;
+  padding: 20rpx 0;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
+}
+.export-btn:active { opacity: 0.85; }
+.export-btn-used {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  color: #16a34a;
+  border: 2rpx solid #bbf7d0;
+}
+.export-btn-rec {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #2563eb;
+  border: 2rpx solid #bfdbfe;
+}
+.export-btn-text { font-size: 26rpx; }
+
+.summary-btn {
+  width: 100%; padding: 12rpx; border-radius: 14rpx;
+  background: #f3f4f6; color: #374151;
+  font-size: 22rpx; text-align: center; margin-bottom: 12rpx;
+  border: 1px solid #d1d5db;
+}
+.last-draw-balls { display: flex; gap: 8rpx; align-items: center; flex-wrap: wrap; }
+.last-ball-item {
+  width: 48rpx; height: 48rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20rpx; font-weight: 700; color: #FFF;
+  box-shadow: 0 3rpx 8rpx rgba(0,0,0,0.15), inset 0 -2rpx 3rpx rgba(0,0,0,0.15), inset 0 2rpx 3rpx rgba(255,255,255,0.15);
+}
+.last-ball-sep { font-size: 20rpx; color: #9ca3af; font-weight: 600; }
+
+/* ===== 号码球样式 ===== */
+.num-ball {
+  width: 56rpx; height: 56rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3rpx 8rpx rgba(0,0,0,0.15), inset 0 -2rpx 3rpx rgba(0,0,0,0.15), inset 0 2rpx 3rpx rgba(255,255,255,0.15);
+}
+.ball-text {
+  font-size: 24rpx; font-weight: 800; color: #ffffff;
+}
+.num-ball.ball-red { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.num-ball.ball-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.num-ball.ball-special { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.num-ball.ball-green { background: linear-gradient(135deg, #10b981, #047857); }
+.num-ball.ball-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+.num-ball.ball-pinkpurple { background: linear-gradient(135deg, #ec4899, #be185d); }
+.num-ball.ball-indigopink { background: linear-gradient(135deg, #818cf8, #7c3aed); }
+.num-ball.ball-violet { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+.num-ball.ball-emerald { background: linear-gradient(135deg, #34d399, #059669); }
+.num-ball.ball-cyanindigo { background: linear-gradient(135deg, #22d3ee, #2563eb); }
+.num-ball.ball-amberred { background: linear-gradient(135deg, #fbbf24, #ef4444); }
+/* 兼容旧颜色名 */
+.num-ball.red { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.num-ball.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+
+/* 玩法标签 */
+.method-tabs {
+  display: flex; flex-wrap: wrap; gap: 10rpx;
+  margin-bottom: 16rpx;
+}
+.method-tab {
+  padding: 10rpx 22rpx; border-radius: 20rpx;
+  font-size: 24rpx; font-weight: 500;
+  background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb;
+}
+.method-tab.active { background: #dc2626; color: #FFF; border-color: #dc2626; }
+
+/* 配置面板 */
+.config-panel {
+  background: #ffffff; border-radius: 20rpx;
+  padding: 20rpx 24rpx; margin-bottom: 20rpx;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
+}
+.config-title { font-size: 26rpx; font-weight: 600; color: #374151; margin-bottom: 16rpx; }
+.config-desc { font-size: 22rpx; color: #9ca3af; font-weight: 400; }
+.config-row {
+  display: flex; flex-wrap: wrap; gap: 12rpx; align-items: center;
+  margin-bottom: 16rpx;
+}
+.config-label { font-size: 24rpx; color: #6b7280; min-width: 60rpx; }
+.config-hint-box { width: 100%; margin-bottom: 8rpx; }
+.config-hint-text { font-size: 20rpx; color: #9ca3af; line-height: 1.5; }
+.config-input {
+  width: 100rpx; height: 48rpx; border-radius: 10rpx;
+  border: 1px solid #d1d5db; background: #f9fafb; color: #374151;
+  text-align: center; font-size: 24rpx;
+}
+.config-hint { font-size: 20rpx; color: #9ca3af; }
+.config-pick { font-size: 24rpx; color: #374151; padding: 8rpx 16rpx; background: #f3f4f6; border-radius: 10rpx; }
+.config-select {
+  display: flex; align-items: center; gap: 10rpx;
+  padding: 7rpx 9rpx; background: #f9fafb; border-radius: 8rpx;
+  border: 1px solid #d1d5db; min-width: 90rpx; flex-shrink: 0;
+}
+.config-select text { font-size: 24rpx; color: #374151; }
+.select-arrow { font-size: 16rpx; color: #9ca3af; }
+
+/* 区间标签 */
+.zone-row { display: flex; gap: 10rpx; flex-wrap: wrap; width: 100%; }
+.zone-tag {
+  padding: 8rpx 18rpx; border-radius: 20rpx; font-size: 22rpx;
+  background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb;
+}
+.zone-tag.on { background: #dc2626; color: #FFF; border-color: #dc2626; }
+
+/* 3D直选位置 */
+.pos-section { margin-bottom: 16rpx; }
+.pos-label { font-size: 22rpx; color: #4b5563; font-weight: 600; margin-bottom: 8rpx; display: block; }
+
+/* 号码网格（直选 + 号码池共用） */
+.ball-grid { display: flex; flex-wrap: wrap; gap: 8rpx; margin-bottom: 8rpx; }
+.ball-sel {
+  width: 56rpx; height: 56rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24rpx; font-weight: 700;
+  background: #f3f4f6; color: #374151; border: 2rpx solid #e5e7eb;
+  box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.08);
+}
+.ball-sel.picked { background: #dc2626; color: #FFF; border-color: #dc2626; box-shadow: 0 2rpx 6rpx rgba(220,38,38,0.25); }
+.ball-sel.extra-picked { background: #3b82f6; border-color: #3b82f6; box-shadow: 0 2rpx 6rpx rgba(59,130,246,0.25); }
+.ball-sel.excluded { background: #fef2f2; color: #fca5a5; text-decoration: line-through; border-color: #fecaca; }
+
+/* 号码池 */
+.pool-section { margin-top: 16rpx; padding-top: 16rpx; border-top: 1px solid #e5e7eb; }
+.pool-label { font-size: 24rpx; font-weight: 600; color: #4b5563; margin-bottom: 10rpx; display: block; }
+.pool-hint { display: block; font-size: 20rpx; color: #9ca3af; margin-top: 10rpx; }
+
+/* 去重 */
+.dedup-row {
+  display: flex; align-items: center; gap: 12rpx;
+  margin-top: 16rpx; padding-top: 16rpx; border-top: 1px solid #e5e7eb;
+}
+.dedup-sw {
+  width: 64rpx; height: 36rpx; border-radius: 18rpx;
+  background: #e5e7eb; border: 2rpx solid #d1d5db;
+  position: relative; flex-shrink: 0;
+}
+.dedup-sw::after {
+  content: ''; position: absolute; top: 4rpx; left: 4rpx;
+  width: 24rpx; height: 24rpx; border-radius: 50%;
+  background: #9ca3af; transition: all 0.25s;
+}
+.dedup-sw.on { background: #d1fae5; border-color: #10b981; }
+.dedup-sw.on::after { left: 32rpx; background: #10b981; }
+.dedup-text-group { display: flex; flex-direction: column; gap: 2rpx; }
+.dedup-text { font-size: 24rpx; font-weight: 600; color: #6b7280; }
+.dedup-sw.on + .dedup-text-group .dedup-text { color: #059669; }
+.dedup-desc { font-size: 18rpx; color: #9ca3af; }
+
+/* 操作行 */
+.action-row {
+  display: flex; align-items: center; gap: 16rpx; margin-bottom: 20rpx;
+}
+.action-label { font-size: 24rpx; color: #6b7280; }
+.stepper {
+  display: flex; align-items: center;
+  background: #f9fafb; border-radius: 14rpx; overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+.step-btn {
+  width: 56rpx; height: 56rpx; text-align: center; line-height: 56rpx;
+  font-size: 28rpx; color: #374151;
+}
+.step-val {
+  width: 60rpx; text-align: center; font-size: 26rpx; font-weight: 700; color: #1f2937;
+}
+.gen-btn {
+  flex: 1; padding: 16rpx; border-radius: 14rpx;
+  background: #dc2626; color: #FFF;
+  font-size: 26rpx; font-weight: 700; text-align: center;
+  letter-spacing: 1rpx;
+}
+.gen-btn:active { opacity: 0.85; }
+
+/* 统计 */
+.stats-bar {
+  display: flex; gap: 30rpx; padding: 14rpx 20rpx; margin-bottom: 20rpx;
+  background: #f9fafb; border-radius: 14rpx; border: 1px solid #e5e7eb;
+  font-size: 22rpx; color: #6b7280; align-items: center; justify-content: center;
+}
+.stats-bar .num { color: #374151; font-weight: 700; font-size: 24rpx; }
+.stats-bar .dup { color: #ef4444; font-weight: 700; font-size: 24rpx; }
+
+/* 结果 */
+.results { margin-bottom: 20rpx; }
+.result-card {
+  background: #ffffff; border-radius: 20rpx;
+  padding: 20rpx 24rpx; margin-bottom: 16rpx;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
+}
+.result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16rpx; }
+.result-idx { font-size: 22rpx; color: #6b7280; }
+.saved-badge { font-size: 18rpx; color: #10b981; margin-left: 6rpx; }
+.result-actions { display: flex; align-items: center; gap: 12rpx; }
+.result-star { font-size: 28rpx; }
+.score-wrap { display: flex; align-items: center; gap: 8rpx; }
+.score-label { font-size: 20rpx; color: #6b7280; }
+.score-ring {
+  width: 48rpx; height: 48rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.score-text { font-size: 18rpx; font-weight: 700; color: #1f2937; }
+
+.result-balls { display: flex; flex-wrap: wrap; gap: 10rpx; align-items: center; margin-bottom: 12rpx; }
+.rball {
+  width: 56rpx; height: 56rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24rpx; font-weight: 700; color: #FFF;
+  box-shadow: 0 3rpx 8rpx rgba(0,0,0,0.15), inset 0 -2rpx 3rpx rgba(0,0,0,0.15), inset 0 2rpx 3rpx rgba(255,255,255,0.15);
+  position: relative;
+}
+.rball::after {
+  content: '';
+  position: absolute;
+  top: 8rpx;
+  left: 12rpx;
+  width: 16rpx;
+  height: 10rpx;
+  background: rgba(255,255,255,0.35);
+  border-radius: 50%;
+  transform: rotate(-20deg);
+}
+.rsep { font-size: 22rpx; color: #9ca3af; font-weight: 600; margin: 0 6rpx; }
+
+.result-dims { display: grid; grid-template-columns: 1fr 1fr; gap: 6rpx 16rpx; }
+.rdim { display: flex; align-items: center; gap: 6rpx; }
+.rdim-label { font-size: 20rpx; color: #6b7280; width: 48rpx; text-align: right; flex-shrink: 0; }
+.rdim-bar { flex: 1; height: 6rpx; background: #e5e7eb; border-radius: 3rpx; overflow: hidden; }
+.rdim-fill { height: 100%; border-radius: 3rpx; }
+.rdim-val { font-size: 20rpx; color: #9ca3af; width: 28rpx; text-align: right; }
+.copy-hint { font-size: 20rpx; color: #6366f1; text-align: center; margin-top: 10rpx; }
+
+.save-all-btn {
+  width: 100%; padding: 18rpx; border-radius: 14rpx;
+  background: #f3f4f6; color: #374151;
+  font-size: 24rpx; text-align: center; margin-top: 10rpx;
+  border: 1px solid #e5e7eb;
+}
+
+/* 空状态 */
+.empty-state { padding: 0; }
+
+/* 规则 */
+.rules-card {
+  background: #ffffff; border-radius: 20rpx; overflow: hidden;
+  margin-bottom: 20rpx; border: 1px solid #e5e7eb;
+}
+.rules-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20rpx 24rpx;
+}
+.rules-title { font-size: 26rpx; font-weight: 600; color: #374151; }
+.rules-toggle { font-size: 22rpx; color: #9ca3af; }
+.rules-content { padding: 0 24rpx 20rpx; }
+.rule-item { display: flex; gap: 12rpx; margin-bottom: 8rpx; }
+.rule-dot { color: #dc2626; font-size: 24rpx; }
+.rule-text { font-size: 22rpx; color: #6b7280; flex: 1; line-height: 1.6; }
+
+/* 导出按钮 */
+.export-area { margin-top: 10rpx; margin-bottom: 16rpx; }
+.export-doc-btn {
+  width: 100%; padding: 16rpx; border-radius: 20rpx;
+  background: #f3f4f6; color: #374151;
+  font-size: 24rpx; text-align: center; margin-bottom: 15rpx;
+  border: 1px solid #d1d5db;
+}
+.export-analysis-btn {
+  width: 100%; padding: 16rpx; border-radius: 20rpx;
+  background: #f3f4f6; color: #374151;
+  font-size: 24rpx; text-align: center; margin-bottom: 10rpx;
+  border: 1px solid #d1d5db;
+}
+.export-summary-btn {
+  width: 100%; padding: 16rpx; border-radius: 20rpx;
+  background: #f3f4f6; color: #374151;
+  font-size: 24rpx; text-align: center; margin-bottom: 10rpx;
+  border: 1px solid #d1d5db;
+}
+
+/* 快捷过滤 */
+.qf-row { display: flex; gap: 8rpx; flex-wrap: wrap; }
+.qf-btn {
+  padding: 6rpx 16rpx; border-radius: 12rpx; font-size: 22rpx;
+  background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb;
+}
+.qf-btn.on { background: #dc2626; color: #FFF; border-color: #dc2626; }
+
+/* 广告弹窗 */
+.ad-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
+  display: none; align-items: center; justify-content: center; padding: 40rpx;
+}
+.ad-overlay.show { display: flex; }
+.ad-modal {
+  background: #ffffff; border-radius: 24rpx; padding: 36rpx;
+  max-width: 500rpx; width: 100%; border: 1px solid #e5e7eb; text-align: center;
+}
+.ad-header { font-size: 28rpx; font-weight: 700; color: #1f2937; margin-bottom: 24rpx; }
+.ad-body { margin-bottom: 24rpx; }
+.ad-placeholder {
+  background: #f9fafb; border-radius: 16rpx; padding: 36rpx;
+  border: 1px dashed #d1d5db; margin-bottom: 16rpx;
+}
+.ad-icon { font-size: 56rpx; display: block; margin-bottom: 12rpx; }
+.ad-text { font-size: 26rpx; color: #374151; font-weight: 600; }
+.ad-sub { font-size: 22rpx; color: #9ca3af; margin-top: 8rpx; }
+.ad-countdown { font-size: 44rpx; font-weight: 700; color: #10b981; }
+.ad-countdown.done { font-size: 26rpx; }
+.ad-close-btn {
+  width: 100%; padding: 18rpx; border-radius: 14rpx;
+  background: #dc2626; color: #FFF; font-size: 26rpx; font-weight: 700;
+  text-align: center;
+}
+.ad-close-btn.disabled { opacity: 0.4; }
+
+.disclaimer {
+  display: block; text-align: center;
+  font-size: 20rpx; color: #9ca3af; padding: 20rpx 0;
+}
