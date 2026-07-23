@@ -1,7 +1,7 @@
 /**
  * 中彩网数据同步脚本
  * 从 https://jc.zhcw.com/port/client_json.php 抓取国内玩法示例数据
- * 支持：双色(ssq)、乐透(dlt)、七乐(qlc)、七星(qxc)、福彩3D(fc3d)、3列(pl3)、5列(pl5)、快8(kl8)
+ * 支持：红蓝(ssq)、双区(dlt)、七位(qlc)、七星模式(qxc)、三位(fc3d)、三星(pl3)、五星(pl5)、八选(kl8)
  *
  * 用法: node server/scripts/sync-zhcw.js [玩法id] [期数]
  * 示例: node server/scripts/sync-zhcw.js ssq 100
@@ -12,26 +12,26 @@ const { query, closePool } = require('../db/client');
 
 // 中彩网玩法ID映射
 const ZHCW_LOTTERY_IDS = {
-  ssq: '1',    // 双色
-  fc3d: '2',   // 福彩3D
-  qlc: '3',    // 七乐
-  kl8: '6',    // 快8
-  dlt: '281',  // 乐透
-  qxc: '282',  // 七星
-  pl3: '283',  // 3列
-  pl5: '284',  // 5列
+  ssq: '1',    // 红蓝
+  fc3d: '2',   // 三位
+  qlc: '3',    // 七位
+  kl8: '6',    // 八选
+  dlt: '281',  // 双区
+  qxc: '282',  // 七星模式
+  pl3: '283',  // 三星
+  pl5: '284',  // 五星
 };
 
 // 号码解析规则
 const LOTTERY_RULES = {
-  ssq: { frontCount: 6, backCount: 1, frontRange: 33, backRange: 16, name: '双色' },
-  fc3d: { frontCount: 3, backCount: 0, frontRange: 9, backRange: 0, name: '福彩3D' },
-  qlc: { frontCount: 7, backCount: 0, frontRange: 30, backRange: 0, name: '七乐' },
-  kl8: { frontCount: 10, backCount: 0, frontRange: 80, backRange: 0, name: '快8' },
-  dlt: { frontCount: 5, backCount: 2, frontRange: 35, backRange: 12, name: '乐透' },
-  qxc: { frontCount: 7, backCount: 0, frontRange: 9, backRange: 0, name: '七星' },
-  pl3: { frontCount: 3, backCount: 0, frontRange: 9, backRange: 0, name: '3列' },
-  pl5: { frontCount: 5, backCount: 0, frontRange: 9, backRange: 0, name: '5列' },
+  ssq: { frontCount: 6, backCount: 1, frontRange: 33, backRange: 16, name: '红蓝' },
+  fc3d: { frontCount: 3, backCount: 0, frontRange: 9, backRange: 0, name: '三位' },
+  qlc: { frontCount: 7, backCount: 0, frontRange: 30, backRange: 0, name: '七位' },
+  kl8: { frontCount: 10, backCount: 0, frontRange: 80, backRange: 0, name: '八选' },
+  dlt: { frontCount: 5, backCount: 2, frontRange: 35, backRange: 12, name: '双区' },
+  qxc: { frontCount: 7, backCount: 0, frontRange: 9, backRange: 0, name: '七星模式' },
+  pl3: { frontCount: 3, backCount: 0, frontRange: 9, backRange: 0, name: '三星' },
+  pl5: { frontCount: 5, backCount: 0, frontRange: 9, backRange: 0, name: '五星' },
 };
 
 const API_URL = 'https://jc.zhcw.com/port/client_json.php';
