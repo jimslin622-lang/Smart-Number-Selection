@@ -90,15 +90,15 @@ async function runUpdateStats() {
 
 async function catchUpMissed() {
   const now = getChinaHHMM();
-  const today = getDayOfWeek();
   console.log('[scheduler] 检查今日已过窗口的彩种...');
 
   for (const cfg of LOTTERY_SCHEDULE) {
-    if (!cfg.days.includes(today)) continue;
     const drawTotal = parseTime(cfg.time);
     const windowEnd = drawTotal + cfg.delayMinutes + 120;
-    if (now.total > windowEnd) {
-      console.log(`[scheduler] 补拉今日已过窗口 ${cfg.name} (${cfg.code})`);
+    const isAfterMidnight = now.hh >= 0 && now.hh < 6;
+    const missed = now.total > windowEnd || (isAfterMidnight && now.total < drawTotal);
+    if (missed) {
+      console.log(`[scheduler] 补拉 ${cfg.name} (${cfg.code})`);
       try {
         await syncOne(cfg, '补拉');
       } catch (err) {
