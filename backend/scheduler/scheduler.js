@@ -88,6 +88,26 @@ async function runUpdateStats() {
   }
 }
 
+async function catchUpMissed() {
+  const now = getChinaHHMM();
+  const today = getDayOfWeek();
+  console.log('[scheduler] 检查今日已过窗口的彩种...');
+
+  for (const cfg of LOTTERY_SCHEDULE) {
+    if (!cfg.days.includes(today)) continue;
+    const drawTotal = parseTime(cfg.time);
+    const windowEnd = drawTotal + cfg.delayMinutes + 120;
+    if (now.total > windowEnd) {
+      console.log(`[scheduler] 补拉今日已过窗口 ${cfg.name} (${cfg.code})`);
+      try {
+        await syncOne(cfg, '补拉');
+      } catch (err) {
+        console.error(`[scheduler] ${cfg.code} 补拉失败:`, err.message);
+      }
+    }
+  }
+}
+
 let started = false;
 
 function startScheduler() {
@@ -100,7 +120,9 @@ function startScheduler() {
     runScheduler('delayed').catch(() => {});
   };
 
-  fastTimer();
+  catchUpMissed().finally(() => {
+    fastTimer();
+  });
   setInterval(fastTimer, INTERVAL_5M);
 
   const hourTimer = () => {
