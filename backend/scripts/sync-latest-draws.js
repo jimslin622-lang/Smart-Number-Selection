@@ -67,9 +67,8 @@ async function fetchZhcw(lotteryId, pageSize = 30) {
 const { fetchMarkSixResults } = require('../hkjc-marksix');
 
 function convertLhcPeriod(period) {
-  // HKJC returns '26/073', DB stores '2026073'
-  const parts = period.split('/');
-  return parts.length === 2 ? `20${parts[0]}${parts[1].padStart(3, '0')}` : period;
+  // HKJC returns '26/073', DB stores '26/073'
+  return period;
 }
 
 async function fetchLhc() {
