@@ -23,6 +23,7 @@ COPY backend/routes ./routes
 
 # 复制小程序配置（仅用于版本参考，非必需）
 COPY frontend/app.json frontend/project.config.json ./
+COPY frontend/utils ./frontend/utils
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0

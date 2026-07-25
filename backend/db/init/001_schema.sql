@@ -97,6 +97,19 @@ CREATE TABLE IF NOT EXISTS users (
   last_login TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 期次记录（记录已随机过的号码）
+CREATE TABLE IF NOT EXISTS period_records (
+  id TEXT PRIMARY KEY,
+  lottery_code TEXT NOT NULL,
+  period TEXT NOT NULL,
+  main_numbers TEXT NOT NULL DEFAULT '',
+  extra_numbers TEXT NOT NULL DEFAULT '',
+  num_hash TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_period_records_code_period ON period_records(lottery_code, period);
+CREATE INDEX IF NOT EXISTS idx_period_records_hash ON period_records(num_hash);
+
 -- 用户记录
 CREATE TABLE IF NOT EXISTS user_records (
   id TEXT PRIMARY KEY,
