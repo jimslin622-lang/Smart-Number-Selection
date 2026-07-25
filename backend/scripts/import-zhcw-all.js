@@ -5,6 +5,7 @@
  * - 分页循环拉取全部历史
  * 用法: node server/scripts/import-zhcw-all.js
  */
+const crypto = require('crypto');
 const { getPool, closePool } = require('../db/client');
 
 const API_URL = 'https://jc.zhcw.com/port/client_json.php';
@@ -120,10 +121,10 @@ async function importLottery(pool, cfg) {
       const numbers = buildNumbers(cfg, item);
       try {
         await pool.query(
-          `INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
-           VALUES($1, $2, $3::date, $4::jsonb, 'zhcw.com')
+          `INSERT INTO lottery_draw(id, lottery_code, issue, draw_date, numbers, data_source)
+           VALUES($1, $2, $3, $4::date, $5::jsonb, 'zhcw.com')
            ON CONFLICT(lottery_code, issue) DO NOTHING`,
-          [cfg.id, `${item.issue}`, item.openTime, JSON.stringify(numbers)]
+          [crypto.randomBytes(6).toString('hex'), cfg.id, `${item.issue}`, item.openTime, JSON.stringify(numbers)]
         );
         pageInserted++;
       } catch (e) {
@@ -179,10 +180,10 @@ async function main() {
         if (item.week) numbers.week = item.week;
         try {
           await pool.query(
-            `INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
-             VALUES($1, $2, $3::date, $4::jsonb, 'zhcw.com')
+            `INSERT INTO lottery_draw(id, lottery_code, issue, draw_date, numbers, data_source)
+             VALUES($1, $2, $3, $4::date, $5::jsonb, 'zhcw.com')
              ON CONFLICT(lottery_code, issue) DO NOTHING`,
-            ['qxc', `${item.issue}`, item.openTime, JSON.stringify(numbers)]
+            [crypto.randomBytes(6).toString('hex'), 'qxc', `${item.issue}`, item.openTime, JSON.stringify(numbers)]
           );
           ins++;
         } catch (e) { if (e.code !== '23505') console.error(e.message); }

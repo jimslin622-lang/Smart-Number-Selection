@@ -15,6 +15,7 @@
  * 建议通过 cron 每日执行：0 3 * * * cd /path && node server/scripts/update-stats.js
  */
 
+const crypto = require('crypto');
 const { getPool, closePool } = require('../db/client');
 
 // 不做走势分析的玩法
@@ -97,10 +98,11 @@ async function updateNumberStats(pool, code) {
 
     await pool.query(`
       INSERT INTO number_statistics
-        (lottery_code, number_value, appear_count, current_miss, max_miss, avg_miss,
+        (id, lottery_code, number_value, appear_count, current_miss, max_miss, avg_miss,
          consecutive_count, hot_score, cold_score, probability, last_issue)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     `, [
+      crypto.randomBytes(6).toString('hex'),
       code, num, appearCount, currentMiss, currentMiss, Math.round(avgMiss * 100) / 100,
       0, hotScore, coldScore, Math.round(probability * 1000000) / 1000000,
       allIssues[totalDraws - 1] || '',
@@ -130,10 +132,11 @@ async function updateNumberStats(pool, code) {
 
       await pool.query(`
         INSERT INTO number_statistics
-          (lottery_code, number_value, appear_count, current_miss, max_miss, avg_miss,
+          (id, lottery_code, number_value, appear_count, current_miss, max_miss, avg_miss,
            consecutive_count, hot_score, cold_score, probability, last_issue)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       `, [
+        crypto.randomBytes(6).toString('hex'),
         code, storedValue, appearCount, currentMiss, currentMiss, Math.round(avgMiss * 100) / 100,
         0, hotScore, coldScore, Math.round(probability * 1000000) / 1000000,
         allIssues[totalDraws - 1] || '',
@@ -182,9 +185,10 @@ async function updateTrendStats(pool, code) {
     }
 
     await pool.query(`
-      INSERT INTO trend_statistics (draw_id, lottery_code, issue, trend_type, trend_value, trend_json)
-      VALUES ($1, $2, $3, 'miss', $4, $5::jsonb)
+      INSERT INTO trend_statistics (id, draw_id, lottery_code, issue, trend_type, trend_value, trend_json)
+      VALUES ($1, $2, $3, $4, 'miss', $5, $6::jsonb)
     `, [
+      crypto.randomBytes(6).toString('hex'),
       row.id, code, row.issue,
       Object.values(missValues).join(','),
       JSON.stringify(missValues),

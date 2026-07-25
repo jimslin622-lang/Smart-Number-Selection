@@ -3,6 +3,7 @@
  * 来源: utils/lottery/marksix-history.js (4352期)
  * 用法: node server/scripts/import-lhc-history.js
  */
+const crypto = require('crypto');
 const { getPool, closePool } = require('../db/client');
 
 async function main() {
@@ -36,10 +37,10 @@ async function main() {
 
     try {
       await pool.query(`
-        INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
-        VALUES($1,$2,$3,$4::jsonb,$5)
+        INSERT INTO lottery_draw(id, lottery_code, issue, draw_date, numbers, data_source)
+        VALUES($1,$2,$3,$4,$5::jsonb,$6)
         ON CONFLICT(lottery_code, issue) DO NOTHING
-      `, ['lhc', period, drawDate, JSON.stringify(numbers), 'hkjc-history']);
+      `, [crypto.randomBytes(6).toString('hex'), 'lhc', period, drawDate, JSON.stringify(numbers), 'hkjc-history']);
       inserted++;
     } catch (e) {
       if (e.code === '23505') { skipped++; }

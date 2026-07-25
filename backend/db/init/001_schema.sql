@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS lottery_type (
 
 -- 开奖记录
 CREATE TABLE IF NOT EXISTS lottery_draw (
-  id BIGSERIAL PRIMARY KEY,
+  id TEXT PRIMARY KEY,
   lottery_code TEXT NOT NULL REFERENCES lottery_type(code),
   issue TEXT NOT NULL,
   draw_date DATE NOT NULL,
@@ -34,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_lottery_draw_code_date ON lottery_draw(lottery_co
 
 -- 号码统计
 CREATE TABLE IF NOT EXISTS number_statistics (
-  id BIGSERIAL PRIMARY KEY,
+  id TEXT PRIMARY KEY,
   lottery_code TEXT NOT NULL,
   number_value INTEGER NOT NULL,
   appear_count INTEGER NOT NULL DEFAULT 0,
@@ -56,8 +56,8 @@ CREATE INDEX IF NOT EXISTS idx_number_stats_code ON number_statistics(lottery_co
 
 -- 走势数据
 CREATE TABLE IF NOT EXISTS trend_statistics (
-  id BIGSERIAL PRIMARY KEY,
-  draw_id BIGINT NOT NULL REFERENCES lottery_draw(id),
+  id TEXT PRIMARY KEY,
+  draw_id TEXT NOT NULL REFERENCES lottery_draw(id),
   lottery_code TEXT NOT NULL,
   issue TEXT NOT NULL,
   trend_type TEXT NOT NULL,

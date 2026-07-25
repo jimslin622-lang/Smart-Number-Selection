@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { getPool, closePool } = require('../db/client');
 const { cleanPeriodRecords } = require('../db/repository');
 const { fetchMarkSixResults, HKJC_RESULTS_URL } = require('../hkjc-marksix');
@@ -14,11 +15,11 @@ async function sync() {
     const numbers = { normal: row.raw.main.map(String), special: String(row.raw.special) };
     try {
       await pool.query(`
-        INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
-        VALUES($1,$2,$3,$4::jsonb,$5)
+        INSERT INTO lottery_draw(id, lottery_code, issue, draw_date, numbers, data_source)
+        VALUES($1,$2,$3,$4,$5::jsonb,$6)
         ON CONFLICT(lottery_code, issue) 
         DO UPDATE SET updated_at = now()
-      `, ['lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
+      `, [crypto.randomBytes(6).toString('hex'), 'lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
       inserted++;
       cleanPeriodRecords('lhc', row.period).then(del => {
         if (del > 0) console.log(`  清理 period_records: lhc ${row.period} -> ${del} 条`);
@@ -53,11 +54,11 @@ async function syncFromModule(count = 50) {
     const numbers = { normal: row.raw.main.map(String), special: String(row.raw.special) };
     try {
       await pool.query(`
-        INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
-        VALUES($1,$2,$3,$4::jsonb,$5)
+        INSERT INTO lottery_draw(id, lottery_code, issue, draw_date, numbers, data_source)
+        VALUES($1,$2,$3,$4,$5::jsonb,$6)
         ON CONFLICT(lottery_code, issue) 
         DO UPDATE SET updated_at = now()
-      `, ['lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
+      `, [crypto.randomBytes(6).toString('hex'), 'lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
       inserted++;
       cleanPeriodRecords('lhc', row.period).then(del => {
         if (del > 0) console.log(`  清理 period_records: lhc ${row.period} -> ${del} 条`);

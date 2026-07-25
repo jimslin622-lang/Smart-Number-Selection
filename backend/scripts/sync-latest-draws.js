@@ -10,6 +10,7 @@
  *   node server/scripts/sync-latest-draws.js ssq dlt      # 指定玩法
  */
 
+const crypto = require('crypto');
 const { getPool, closePool } = require('../db/client');
 
 // ==================== 中彩网配置 ====================
@@ -104,11 +105,11 @@ async function getLatestDate(pool, code) {
  */
 async function insertDraw(pool, code, issue, drawDate, numbers, source) {
   await pool.query(`
-    INSERT INTO lottery_draw (lottery_code, issue, draw_date, numbers, data_source)
-    VALUES ($1, $2, $3, $4::jsonb, $5)
+    INSERT INTO lottery_draw (id, lottery_code, issue, draw_date, numbers, data_source)
+    VALUES ($1, $2, $3, $4, $5::jsonb, $6)
     ON CONFLICT (lottery_code, issue) 
     DO UPDATE SET updated_at = now()
-  `, [code, issue, drawDate, JSON.stringify(numbers), source]);
+  `, [crypto.randomBytes(6).toString('hex'), code, issue, drawDate, JSON.stringify(numbers), source]);
 }
 
 /**

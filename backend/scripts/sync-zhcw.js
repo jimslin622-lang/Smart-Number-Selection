@@ -8,6 +8,7 @@
  *       node server/scripts/sync-zhcw.js all 50
  */
 
+const crypto = require('crypto');
 const { query, closePool } = require('../db/client');
 const { cleanPeriodRecords } = require('../db/repository');
 
@@ -157,11 +158,11 @@ async function saveToDb(typeId, records) {
 
     try {
       await query(
-        `INSERT INTO lottery_draw(lottery_code, issue, draw_date, numbers, data_source)
-         VALUES ($1, $2, $3, $4::jsonb, 'zhcw.com')
+        `INSERT INTO lottery_draw(id, lottery_code, issue, draw_date, numbers, data_source)
+         VALUES ($1, $2, $3, $4, $5::jsonb, 'zhcw.com')
          ON CONFLICT (lottery_code, issue) 
          DO UPDATE SET updated_at = now()`,
-        [typeId, period, sampleDate, JSON.stringify(numbers)]
+        [crypto.randomBytes(6).toString('hex'), typeId, period, sampleDate, JSON.stringify(numbers)]
       );
       inserted++;
       // 开奖数据入库后，清理该期 period_records（已开奖，不再需要去重）
