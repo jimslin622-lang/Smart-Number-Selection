@@ -39,6 +39,9 @@
       DB_SSL: "false"
       CORS_ORIGIN: "*"
       AUTO_SEED: "false"
+      WX_APPID: wx83dfcd155101e160
+      WX_SECRET: 03f222d2d463a43a3de859d23369a502
+      JWT_SECRET: random-number-helper-jwt-secret-2026
     ports:
       - "3000:3000"
 

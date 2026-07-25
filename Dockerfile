@@ -15,6 +15,7 @@ COPY backend/response.js ./
 COPY backend/config.js ./
 COPY backend/config ./config
 COPY backend/scripts ./scripts
+COPY backend/scheduler ./scheduler
 COPY backend/utils ./utils
 COPY backend/db ./db
 COPY backend/middleware ./middleware

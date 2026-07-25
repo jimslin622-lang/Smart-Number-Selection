@@ -13,6 +13,7 @@ const { pingDb, closePool, hasDbConfig, getPool } = require('./db/client');
 const repo = require('./db/repository');
 const { authMiddleware } = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
+const { startScheduler } = require('./scheduler/scheduler');
 
 function generateId() {
   return crypto.randomBytes(6).toString('hex');
@@ -773,6 +774,7 @@ const server = http.createServer(route);
 
 server.listen(config.port, config.host, () => {
   console.log(`random-number-helper-api listening at http://${config.host}:${config.port}`);
+  startScheduler();
 });
 
 async function shutdown(signal) {

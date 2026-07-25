@@ -34,6 +34,7 @@ function requestOnce({ baseUrl, path, method = 'GET', query, data, header }) {
       timeout: TIMEOUT,
       header: headers,
       success(res) {
+        console.log('[request] status:', res.statusCode, 'url:', url);
         const body = res.data || {};
         if (res.statusCode >= 200 && res.statusCode < 300 && body.code === 0) {
           resolve(body.data);
@@ -46,6 +47,7 @@ function requestOnce({ baseUrl, path, method = 'GET', query, data, header }) {
         }
       },
       fail(err) {
+        console.error('[request] FAIL url:', url, 'err:', JSON.stringify(err));
         const e = new Error(err.errMsg || 'request failed');
         e.url = url;
         e.raw = err;

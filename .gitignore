@@ -22,6 +22,9 @@ server/.env
 .DS_Store
 Thumbs.db
 
+# 打包文件
+lottery-app.zip
+
 # 临时文件
 *.tmp
 *.temp
