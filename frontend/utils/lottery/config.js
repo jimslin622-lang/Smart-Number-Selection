@@ -23,9 +23,7 @@ const BALL_COLORS = {
   kl8: { main: 'red' }
 };
 
-// ⚠️ 废弃：HISTORY_COUNTS 已移除，历史期数统一通过 API /api/v1/templates 动态获取
-// 旧表 history_numbers 已废弃，数据迁移至 lottery_draw 表
-// 如需离线 fallback，请在 services/lottery-api.js 的 getTemplates() catch 中处理
+
 
 const WEEK_NAMES = { 1: '一', 2: '二', 3: '三', 4: '四', 5: '五', 6: '六', 7: '日' };
 

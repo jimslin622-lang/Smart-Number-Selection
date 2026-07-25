@@ -22,7 +22,7 @@ function decorateParsed(parsed, typeId) {
   const colors = BALL_COLORS[typeId] || {};
   const result = parsed.map(item => ({ ...item }));
   result.forEach(item => {
-    item.isSpecial = item.label.includes('特别') || item.label.includes('扩展');
+    item.isSpecial = item.label.includes('特别') || item.label.includes('扩展') || item.label.includes('附加') || item.label.includes('特码');
     item.isSub = item.label.includes('副') || item.label.includes('后') || item.label.includes('后区') || item.label.includes('蓝') || item.label.includes('特别') || item.label.includes('扩展');
     if (item.isSpecial && colors.special) {
       item.ballClass = colors.special;
@@ -76,7 +76,8 @@ Page({
     countText: '',
     rule: null,
     rulesExpanded: false,
-    loading: false
+    loading: false,
+    isAllSelected: false
   },
 
   onLoad(options) {
@@ -152,7 +153,9 @@ Page({
 
   setPeriods(e) {
     const rawCount = parseInt(e.currentTarget.dataset.count);
-    const count = rawCount === -1 ? Math.min(this._getHistoryCount(this.data.selectedId) || 300, 300) : rawCount;
+    const isAll = rawCount === -1;
+    const count = isAll ? Math.min(this._getHistoryCount(this.data.selectedId) || 300, 300) : rawCount;
+    this.setData({ isAllSelected: isAll });
     this.refreshResults(this.data.type, count);
   },
 

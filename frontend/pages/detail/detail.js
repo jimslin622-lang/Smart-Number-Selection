@@ -1,6 +1,24 @@
 const { LOTTERY_MAP, LOTTERY_RULES, BALL_COLORS, LOTTERY_DEFS, generateBatch, scoreColor, parseDisplay } = require('../../utils/lottery');
 const { getLatestResult, getTemplates, getLatestPeriod } = require('../../services/lottery-api');
+const { request } = require('../../services/request');
 const { safeNavigateTo } = require('../../utils/safe-navigate');
+const auth = require('../../utils/auth');
+
+/**
+ * 穷举小彩种所有剩余组合（fc3d/pl3: 000-999）
+ */
+function enumerateAll(typeId, excludedSet) {
+  const remaining = [];
+  for (let i = 0; i < 1000; i++) {
+    const digits = String(i).padStart(3, '0').split('');
+    const main = digits.map(d => parseInt(d));
+    const key = main.join(',');
+    if (!excludedSet.has(key)) {
+      remaining.push({ main, extra: [] });
+    }
+  }
+  return remaining;
+}
 
 Page({
   data: {
@@ -252,7 +270,7 @@ Page({
     // 展平为一维数组
     const flatBalls = [];
     (parsed || []).forEach((section, si) => {
-      const isSpecial = section.label.includes('特别') || section.label.includes('扩展');
+      const isSpecial = section.label.includes('特别') || section.label.includes('扩展') || section.label.includes('附加') || section.label.includes('特码');
       const isSub = section.label.includes('副') || section.label.includes('后') || section.label.includes('后区') || section.label.includes('蓝') || section.label.includes('特别') || section.label.includes('扩展');
       let cls = colors.main || 'ball-red';
       if (isSpecial && colors.special) cls = colors.special;
@@ -565,10 +583,7 @@ Page({
 
   // ===== 导出 =====
   showExportDoc() {
-    this._openAd('doc');
-  },
-  showExportAnalysis() {
-    this._openAd('analysis');
+    this._exportDoc();
   },
 
   // 导出已随机号码
@@ -609,125 +624,240 @@ Page({
       txt += '═══════════════════════════════════════';
 
       const safeName = (this.data.selectedType + '_已随机_' + period).replace(/[/\\?%*:|"<>]/g, '_');
-      this._exportTxt(txt, safeName);
+      this._exportTxt(txt, safeName, this.data.selectedType, period, false);
     } catch (e) {
       wx.showToast({ title: '获取数据失败', icon: 'none' });
     }
   },
 
-  // 导出推荐号码（排除已随机）
+  // 导出推荐号码（排除所有用户已随机 + 已开奖）
   exportRecommend() {
     const id = this.data.selectedId;
     const period = this.data.currentPeriod;
     if (!period) { wx.showToast({ title: '暂无组号', icon: 'none' }); return; }
 
-    // 重新生成排除已随机后的推荐号码
     const def = this.data.selectedDef;
     if (!def) { wx.showToast({ title: '未找到玩法配置', icon: 'none' }); return; }
 
-    try {
-      const allRecords = wx.getStorageSync('local_records') || [];
-      const periodRecords = allRecords.filter(r => r.period === period && r.lottery_code === id);
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('zh-CN');
-      const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    wx.showLoading({ title: '查询排除数据...' });
+    const API_BASE_URL = require('../../services/config').API_BASE_URL || 'http://127.0.0.1:3000';
 
-      let txt = '═══════════════════════════════════════\n';
-      txt += '  智能随机助手 - 推荐号码\n';
-      txt += '  玩法：' + this.data.selectedType + '\n';
-      txt += '  组号：' + period + '\n';
-      txt += '  导出时间：' + dateStr + ' ' + timeStr + '\n';
-
-      const excludedGroups = periodRecords.length ? periodRecords.map(g => {
-        const main = (g.main_numbers || []).map(n => String(n)).sort().join(',');
-        const extra = g.extra_numbers ? g.extra_numbers.map(n => String(n)).sort().join(',') : '';
-        return main + (extra ? '|' + extra : '');
-      }) : [];
-
-      const config = { ...this.data.config, excludedGroups };
-      const result = generateBatch(id, this.data.curMethod, Math.min(this.data.count || 5, 20), config, true);
-
-      if (result && result.items.length) {
-        txt += '  共推荐 ' + result.items.length + ' 注（已排除本组已随机号码）\n';
-        txt += '═══════════════════════════════════════\n\n';
-        result.items.forEach((item, i) => {
-          const main = item.result.main.map(n => String(n).padStart(2, '0')).join(' ');
-          const extra = item.result.extra && item.result.extra.length ? ' + ' + item.result.extra.map(n => String(n).padStart(2, '0')).join(' ') : '';
-          txt += '第 ' + (i + 1) + ' 注：' + main + extra + '\n';
-        });
-      } else {
-        txt += '  本组所有组合已被覆盖，以下为随机推荐\n';
-        txt += '═══════════════════════════════════════\n\n';
-        // 降级：普通随机
-        for (let i = 0; i < 5; i++) {
-          const raw = require('../../utils/lottery').generateOne(id);
-          const main = (raw.main || []).map(n => String(n).padStart(2, '0')).join(' ');
-          const extra = raw.extra && raw.extra.length ? ' + ' + raw.extra.map(n => String(n).padStart(2, '0')).join(' ') : '';
-          txt += '第 ' + (i + 1) + ' 注：' + main + extra + '\n';
+    // 从后端获取所有已排除的号码组
+    wx.request({
+      url: API_BASE_URL + '/api/v1/export/excluded',
+      data: { lottery: id, period: period },
+      success: (res) => {
+        wx.hideLoading();
+        
+        let backendExcluded = [];
+        try {
+          const resp = res.data;
+          if (resp && resp.data && Array.isArray(resp.data.excluded)) {
+            backendExcluded = resp.data.excluded;
+          } else if (resp && Array.isArray(resp.excluded)) {
+            backendExcluded = resp.excluded;
+          }
+        } catch (e) {
+          console.error('[exportRecommend] parse excluded error:', e);
         }
-      }
+        console.log('[exportRecommend] Backend excluded count:', backendExcluded.length);
+        
+        try {
+          const now = new Date();
+          const dateStr = now.toLocaleDateString('zh-CN');
+          const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 
-      txt += '\n═══════════════════════════════════════\n';
-      txt += '  仅供参考 · 理性娱乐 · 量力而行\n';
-      txt += '═══════════════════════════════════════';
-
-      const safeName = (this.data.selectedType + '_推荐_' + period).replace(/[/\\?%*:|"<>]/g, '_');
-      this._exportTxt(txt, safeName);
-    } catch (e) {
-      wx.showToast({ title: '获取数据失败', icon: 'none' });
-    }
-  },
-
-  // 通用导出函数
-  _exportTxt(txt, filename) {
-    const fs = wx.getFileSystemManager();
-    const filePath = wx.env.USER_DATA_PATH + '/' + filename + '.txt';
-    try {
-      fs.writeFileSync(filePath, txt, 'utf-8');
-      wx.openDocument({
-        filePath: filePath,
-        fileType: 'txt',
-        showMenu: true,
-        success: () => {
-          wx.showToast({ title: '导出成功', icon: 'success' });
-        },
-        fail: (err) => {
-          console.warn('openDocument fail:', err);
-          wx.showModal({
-            title: '导出提示',
-            content: '文件已生成，请在文件管理器中查看或复制内容',
-            showCancel: true,
-            cancelText: '关闭',
-            confirmText: '复制内容',
-            success: (res) => {
-              if (res.confirm) {
-                wx.setClipboardData({
-                  data: txt,
-                  success: () => wx.showToast({ title: '已复制', icon: 'success' }),
-                });
-              }
-            },
+          // 组装排除集合
+          const excludedSet = new Set();
+          
+          backendExcluded.forEach(g => {
+            const main = (g.main || []).map(n => String(n)).sort().join(',');
+            const extra = (g.extra || []).map(n => String(n)).sort().join(',');
+            excludedSet.add(main + (extra ? '|' + extra : ''));
           });
-        },
-      });
-    } catch (e) {
-      console.warn('writeFile fail:', e);
-      wx.showModal({
-        title: '导出提示',
-        content: '文件生成失败，请复制内容',
-        showCancel: true,
-        cancelText: '关闭',
-        confirmText: '复制内容',
-        success: (res) => {
-          if (res.confirm) {
-            wx.setClipboardData({
-              data: txt,
-              success: () => wx.showToast({ title: '已复制', icon: 'success' }),
+          
+          const allRecords = wx.getStorageSync('local_records') || [];
+          const periodRecords = allRecords.filter(r => r.period === period && r.lottery_code === id);
+          periodRecords.forEach(g => {
+            const main = (g.main_numbers || []).map(n => String(n)).sort().join(',');
+            const extra = g.extra_numbers ? g.extra_numbers.map(n => String(n)).sort().join(',') : '';
+            excludedSet.add(main + (extra ? '|' + extra : ''));
+          });
+
+          // 全量穷举小彩种，其他用生成方式
+          const isSmallType = id === 'fc3d' || id === 'pl3';
+          
+          let txt = '═══════════════════════════════════════\n';
+          txt += '  智能随机助手 - 未随机号码\n';
+          txt += '  玩法：' + this.data.selectedType + '\n';
+          txt += '  组号：' + period + '\n';
+          txt += '  导出时间：' + dateStr + ' ' + timeStr + '\n';
+
+          if (isSmallType) {
+            // fc3d/pl3: 前端全量穷举剩余组合
+            wx.showLoading({ title: '穷举剩余组合...' });
+            const remaining = enumerateAll(id, excludedSet);
+            wx.hideLoading();
+            
+            txt += '  已排除 ' + excludedSet.size + ' 组\n';
+            txt += '  剩余 ' + remaining.length + ' 组\n';
+            txt += '═══════════════════════════════════════\n\n';
+            
+            remaining.forEach((item, i) => {
+              const main = item.main.map(n => String(n).padStart(2, '0')).join(' ');
+              txt += '第 ' + (i + 1) + ' 注：' + main + '\n';
+            });
+
+            txt += '\n═══════════════════════════════════════\n';
+            txt += '  仅供参考 · 理性娱乐 · 量力而行\n';
+            txt += '═══════════════════════════════════════';
+            
+            const safeName = (this.data.selectedType + '_未随机_' + period).replace(/[/\\?%*:|"<>]/g, '_');
+            this._exportTxt(txt, safeName, this.data.selectedType, period, false);
+          } else {
+            // 大彩种：调后端生成剩余组合
+            wx.showLoading({ title: '生成剩余组合...' });
+            wx.request({
+              url: API_BASE_URL + '/api/v1/export/remaining',
+              data: { lottery: id, period: period, limit: 10000 },
+              success: (remRes) => {
+                wx.hideLoading();
+                console.log('[exportRecommend] remaining response:', remRes.data);
+                let backendRemaining = [];
+                try {
+                  const r = remRes.data;
+                  if (r && r.data && Array.isArray(r.data.remaining)) {
+                    backendRemaining = r.data.remaining;
+                  } else if (r && Array.isArray(r.remaining)) {
+                    backendRemaining = r.remaining;
+                  }
+                } catch (e) {}
+                
+                let txt2 = '═══════════════════════════════════════\n';
+                txt2 += '  智能随机助手 - 未随机号码\n';
+                txt2 += '  玩法：' + this.data.selectedType + '\n';
+                txt2 += '  组号：' + period + '\n';
+                txt2 += '  导出时间：' + dateStr + ' ' + timeStr + '\n';
+                txt2 += '  已排除 ' + excludedSet.size + ' 组\n';
+                txt2 += '  剩余 ' + backendRemaining.length + ' 注（采样）\n';
+                txt2 += '═══════════════════════════════════════\n\n';
+                
+                backendRemaining.forEach((item, i) => {
+                  const main = (item.main || []).map(n => String(n).padStart(2, '0')).join(' ');
+                  const extra = item.extra && item.extra.length ? ' + ' + item.extra.map(n => String(n).padStart(2, '0')).join(' ') : '';
+                  txt2 += '第 ' + (i + 1) + ' 注：' + main + extra + '\n';
+                });
+                
+                txt2 += '\n═══════════════════════════════════════\n';
+                txt2 += '  仅供参考 · 理性娱乐 · 量力而行\n';
+                txt2 += '═══════════════════════════════════════';
+                
+                const safeName2 = (this.data.selectedType + '_未随机_' + period).replace(/[/\\?%*:|"<>]/g, '_');
+                this._exportTxt(txt2, safeName2, this.data.selectedType, period, false);
+              },
+              fail: () => {
+                wx.hideLoading();
+                wx.showToast({ title: '生成失败', icon: 'none' });
+              }
             });
           }
-        },
-      });
-    }
+        } catch (e) {
+          console.error('[exportRecommend] error:', e);
+          wx.showToast({ title: '获取数据失败', icon: 'none' });
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        console.error('[exportRecommend] fetch excluded failed:', err);
+        wx.showToast({ title: '查询排除数据失败', icon: 'none' });
+      }
+    });
+  },
+
+  // 通用导出函数 - 通过后端生成文件
+  _exportTxt(txt, filename, typeName, period, includeScore) {
+    const API_BASE_URL = require('../../services/config').API_BASE_URL || 'http://127.0.0.1:3000';
+    
+    console.log('[export] Starting export, API_BASE_URL:', API_BASE_URL);
+    
+    wx.showLoading({ title: '生成中...' });
+    
+    wx.request({
+      url: API_BASE_URL + '/api/v1/export',
+      method: 'POST',
+      timeout: 10000,
+      data: {
+        content: txt,
+        filename: filename,
+        typeName: typeName || '',
+        period: period || '',
+        includeScore: includeScore !== false
+      },
+      success: (res) => {
+        console.log('[export] Success response:', res);
+        wx.hideLoading();
+        
+        const responseData = res.data && res.data.data ? res.data.data : res.data;
+        if (responseData && responseData.downloadUrl) {
+          wx.showLoading({ title: '下载中...' });
+          
+          wx.downloadFile({
+            url: responseData.downloadUrl,
+            success: (downloadRes) => {
+              wx.hideLoading();
+              
+              if (downloadRes.statusCode === 200) {
+                wx.openDocument({
+                  filePath: downloadRes.tempFilePath,
+                  fileType: 'xlsx',
+                  showMenu: true,
+                  success: () => {
+                    wx.showToast({ title: '导出成功', icon: 'success' });
+                  },
+                  fail: (err) => {
+                    console.warn('openDocument fail:', err);
+                    this._showCopyOption(txt);
+                  }
+                });
+              } else {
+                this._showCopyOption(txt);
+              }
+            },
+            fail: (err) => {
+              wx.hideLoading();
+              console.warn('download fail:', err);
+              this._showCopyOption(txt);
+            }
+          });
+        } else {
+          this._showCopyOption(txt);
+        }
+      },
+      fail: (err) => {
+        console.error('[export] Fail:', err);
+        wx.hideLoading();
+        console.warn('export fail:', err);
+        this._showCopyOption(txt);
+      }
+    });
+  },
+
+  // 显示复制选项
+  _showCopyOption(txt) {
+    wx.showModal({
+      title: '提示',
+      content: '文件打开失败，您可以复制内容',
+      confirmText: '复制内容',
+      cancelText: '关闭',
+      success: (res) => {
+        if (res.confirm) {
+          wx.setClipboardData({
+            data: txt,
+            success: () => wx.showToast({ title: '已复制', icon: 'success' }),
+          });
+        }
+      }
+    });
   },
 
   exportSummary() {
@@ -738,7 +868,7 @@ Page({
       
       const now = new Date();
       const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-      const filename = this.data.selectedType + '_汇总_' + (records.length ? records[0].period || '无' : '无') + '_' + dateStr + '.txt';
+      const safeName = (this.data.selectedType + '_汇总_' + (records.length ? records[0].period || '无' : '无') + '_' + dateStr).replace(/[\\/:*?"<>|]/g, '_');
 
       let txt = '═══════════════════════════════════════\n';
       txt += '  本组汇总 - ' + this.data.selectedType + '\n';
@@ -762,21 +892,24 @@ Page({
       txt += '  仅供参考 · 理性娱乐 · 量力而行\n';
       txt += '═══════════════════════════════════════';
 
-      // 写入临时文件并打开，用户可通过右上角菜单保存
+      // 写入文件并打开
       const fs = wx.getFileSystemManager();
-      const filePath = wx.env.USER_DATA_PATH + '/' + filename;
+      const filePath = `${wx.env.USER_DATA_PATH}/${safeName}.txt`;
       fs.writeFileSync(filePath, txt, 'utf-8');
+      
       wx.openDocument({
         filePath: filePath,
-        fileType: 'txt',
         showMenu: true,
         success: () => {
           wx.showToast({ title: '导出成功', icon: 'success' });
         },
         fail: (err) => {
+          console.warn('openDocument fail:', err);
           wx.showModal({
             title: '导出提示',
-            content: '文件已生成，请复制内容手动保存',
+            content: '文件已生成，请点击下方按钮复制内容',
+            confirmText: '复制内容',
+            cancelText: '关闭',
             success: (res) => {
               if (res.confirm) {
                 wx.setClipboardData({
@@ -789,7 +922,8 @@ Page({
         },
       });
     } catch (e) {
-      wx.showToast({ title: '网络错误', icon: 'none' });
+      console.warn('exportSummary fail:', e);
+      wx.showToast({ title: '导出失败', icon: 'none' });
     }
   },
 
@@ -817,11 +951,7 @@ Page({
     if (this.data.adWatched) {
       if (this.data.adTimer) clearInterval(this.data.adTimer);
       this.setData({ adShow: false });
-      if (this.data.pendingExport === 'doc') {
-        this._exportDoc();
-      } else {
-        this._exportAnalysis();
-      }
+      this._exportDoc();
     } else {
       wx.showToast({ title: '请等待广告完成', icon: 'none' });
     }
@@ -834,25 +964,22 @@ Page({
     }
     if (this.data.adTimer) clearInterval(this.data.adTimer);
     this.setData({ adShow: false });
-    if (this.data.pendingExport === 'doc') {
-      this._exportDoc();
-    } else {
-      this._exportAnalysis();
-    }
+    this._exportDoc();
   },
 
   _exportDoc() {
     const allHistory = this.data.allHistory;
-    if (!allHistory.length) {
+    if (!allHistory || !allHistory.length) {
       wx.showToast({ title: '暂无号码可导出', icon: 'none' });
       return;
     }
+    const typeName = this.data.selectedType;
     const now = new Date();
     const dateStr = now.toLocaleDateString('zh-CN');
     const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 
     let txt = '═══════════════════════════════════════\n';
-    txt += ' 智能随机 - 全部号码导出\n';
+    txt += ' 智能随机 - ' + typeName + ' 号码导出\n';
     txt += ' 导出时间：' + dateStr + ' ' + timeStr + '\n';
     txt += ' 累计生成 ' + this.data.cumTotal + ' 注，重复 ' + this.data.cumDup + ' 注\n';
     txt += ' 有效号码 ' + allHistory.length + ' 注\n';
@@ -865,67 +992,18 @@ Page({
       txt += '第 ' + (i + 1) + ' 注：' + ms + es + '\n';
       txt += '  得分：' + item.score.overall + '/100\n';
       const dimStr = Object.entries(item.score.dims || {}).map(([k, v]) => k + ':' + v).join(' ');
-      txt += '  ' + dimStr + '\n\n';
+      if (dimStr) txt += '  ' + dimStr + '\n';
+      txt += '\n';
     });
 
     txt += '═══════════════════════════════════════\n';
     txt += ' 仅供参考 · 理性娱乐 · 量力而行\n';
     txt += '═══════════════════════════════════════';
 
-    wx.setClipboardData({
-      data: txt,
-      success: () => wx.showToast({ title: '已复制到剪贴板', icon: 'success' }),
-    });
+    const safeName = (typeName + '_全部号码_' + now.toISOString().slice(0, 10)).replace(/[\\/:*?"<>|]/g, '_');
+    this._exportTxt(txt, safeName, typeName, this.data.currentPeriod || '');
   },
 
-  _exportAnalysis() {
-    const allHistory = this.data.allHistory;
-    if (!allHistory.length) {
-      wx.showToast({ title: '暂无号码可导出', icon: 'none' });
-      return;
-    }
-    // 简化版：复制统计摘要到剪贴板
-    const def = this.data.selectedDef;
-    const now = new Date();
-    let txt = '═══════════════════════════════════════\n';
-    txt += ' 随机号码统计报告\n';
-    txt += ' 玩法：' + this.data.selectedType + '\n';
-    txt += ' 导出时间：' + now.toLocaleDateString('zh-CN') + ' ' + now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + '\n';
-    txt += ' 累计生成 ' + allHistory.length + ' 注\n';
-    txt += '═══════════════════════════════════════\n\n';
-
-    // 号码覆盖统计
-    const [lo, hi] = def.main;
-    const coverage = {};
-    for (let i = lo; i <= hi; i++) coverage[i] = 0;
-    allHistory.forEach(item => {
-      item.result.main.forEach(n => { if (coverage[n] !== undefined) coverage[n]++; });
-      if (item.result.extra) {
-        item.result.extra.forEach(n => { if (coverage[n] !== undefined) coverage[n]++; });
-      }
-    });
-
-    txt += '── 号码覆盖统计 ──\n';
-    const sorted = Object.entries(coverage).sort((a, b) => b[1] - a[1]);
-    const maxVal = Math.max(...Object.values(coverage), 1);
-    sorted.forEach(([num, count]) => {
-      const bar = '█'.repeat(Math.min(Math.ceil(count / maxVal * 20), 20));
-      txt += '  ' + String(num).padStart(2, '0') + ' ' + bar + ' ' + count + '次\n';
-    });
-
-    txt += '\n── 遗漏号码 ──\n';
-    const missing = Object.entries(coverage).filter(([_, c]) => c === 0).map(([n]) => n);
-    txt += missing.length ? missing.map(n => String(n).padStart(2, '0')).join(', ') : '无遗漏号码\n';
-
-    txt += '\n═══════════════════════════════════════\n';
-    txt += ' 仅供参考 · 理性娱乐 · 量力而行\n';
-    txt += '═══════════════════════════════════════';
-
-    wx.setClipboardData({
-      data: txt,
-      success: () => wx.showToast({ title: '统计报告已复制', icon: 'success' }),
-    });
-  },
 
   // ===== 生成 =====
   generate() {
@@ -992,13 +1070,17 @@ Page({
 
     console.log('[generate] success: items=' + items.length + ' hasGenerated=' + true);
 
-    // 自动将本期生成的每组号码保存到本地存储
-    const period = this.data.currentPeriod;
-    if (period) {
+    // 自动将本期生成的每组号码保存到本地存储和后端数据库
+    // 确保获取到真实期数后再保存（解决 onLoad 竞态条件）
+    getLatestPeriod(this.data.selectedId).then(period => {
+      if (!period) {
+        console.log('[generate] period is empty, skip save');
+        return;
+      }
+      this.setData({ currentPeriod: period });
+
       const records = items.map(item => ({
-        id: Date.now() + Math.random(),
         lottery_code: this.data.selectedId,
-        type: this.data.selectedType,
         method_id: this.data.curMethod,
         method_name: this.data.curMethodName,
         main_numbers: item.result.main.map(n => parseInt(n)),
@@ -1008,20 +1090,38 @@ Page({
         score_dims: item.score.dims,
         source: 'manual',
         period,
-        created_at: new Date().toISOString(),
-        favorite: false,
       }));
       
       // 保存到本地存储
       try {
+        const localRecords = records.map(r => ({
+          id: Date.now() + Math.random(),
+          ...r,
+          created_at: new Date().toISOString(),
+          favorite: false,
+        }));
         const existingRecords = wx.getStorageSync('local_records') || [];
-        const newRecords = [...records, ...existingRecords];
-        wx.setStorageSync('local_records', newRecords.slice(0, 1000)); // 只保留1000条记录
+        const newRecords = [...localRecords, ...existingRecords];
+        wx.setStorageSync('local_records', newRecords.slice(0, 1000));
         this.loadPeriodExcluded(this.data.selectedId);
       } catch (e) {
-        console.error('保存失败', e);
+        console.error('本地保存失败', e);
       }
-    }
+      
+      // 保存到后端数据库
+      console.log('[generate] Saving to backend...');
+      auth.requestWithAuth({
+        path: '/api/v1/records',
+        method: 'POST',
+        data: records,
+      }).then(res => {
+        console.log('[generate] Saved to backend successfully:', res);
+      }).catch(err => {
+        console.error('[generate] Failed to save to backend:', err);
+      });
+    }).catch(() => {
+      console.log('[generate] Failed to get latest period');
+    });
 
     wx.showToast({ title: `已生成 ${result.items.length} 注`, icon: 'success' });
     } catch (err) {

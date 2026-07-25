@@ -3,10 +3,9 @@
  * 更新统计数据分析脚本
  *
  * 功能：
- * 1. 补全 lottery_draw_analysis 表（和值、跨度、奇偶、大小、质合、区间比等）
- * 2. 更新 number_statistics 表（出现次数、遗漏、冷热分）
- * 3. 更新 trend_statistics 表（走势数据）
- * 4. 清除 fc3d/pl3/pl5/kl8 四个玩法的分析数据（不做走势分析）
+ * 1. 更新 number_statistics 表（出现次数、遗漏、冷热分）
+ * 2. 更新 trend_statistics 表（走势数据）
+ * 3. 清除 fc3d/pl3/pl5/kl8 四个玩法的统计数据（不做走势分析）
  *
  * 用法：
  *   node server/scripts/update-stats.js              # 全量更新
@@ -33,21 +32,6 @@ const LOTTERY_CONFIG = {
   qxc: { mainRange: [0, 9], specialRange: [0, 9], mainCount: 6, specialCount: 1, bigThreshold: 5 },
 };
 
-function isPrime(n) {
-  if (n < 2) return false;
-  for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
-  return true;
-}
-
-function getZone(num, cfg) {
-  const total = cfg.mainRange[1] - cfg.mainRange[0] + 1;
-  const third = Math.ceil(total / 3);
-  const offset = num - cfg.mainRange[0];
-  if (offset < third) return 1;
-  if (offset < third * 2) return 2;
-  return 3;
-}
-
 function toNum(v) { return v != null ? Number(v) : null; }
 function extractNumbers(raw, cfg) {
   const n = raw || {};
@@ -57,102 +41,6 @@ function extractNumbers(raw, cfg) {
   else if (n.front) { main = n.front.map(toNum); special = (n.back || []).map(toNum); }
   else if (n.numbers) { main = n.numbers.map(toNum); special = (n.special || []).map(toNum); }
   return { main: main.filter(v => v != null), special: special.filter(v => v != null) };
-}
-
-async function updateDrawAnalysis(pool, code) {
-  const cfg = LOTTERY_CONFIG[code];
-  if (!cfg) return;
-
-  console.log(`  [${code}] 更新 lottery_draw_analysis...`);
-
-  // 获取所有未分析的示例记录
-  const draws = await pool.query(`
-    SELECT d.id, d.lottery_code, d.issue, d.draw_date, d.numbers
-    FROM lottery_draw d
-    LEFT JOIN lottery_draw_analysis a ON a.draw_id = d.id
-    WHERE d.lottery_code = $1 AND a.id IS NULL
-    ORDER BY d.draw_date ASC, d.id ASC
-  `, [code]);
-
-  if (draws.rows.length === 0) {
-    console.log(`  [${code}]  无需更新`);
-    return;
-  }
-
-  let updated = 0;
-  for (const row of draws.rows) {
-    const { main, special } = extractNumbers(row.numbers, cfg);
-    const allNums = main.concat(special);
-    if (allNums.length === 0) continue;
-
-    const sumValue = allNums.reduce((a, b) => a + b, 0);
-    const sorted = [...allNums].sort((a, b) => a - b);
-    const spanValue = sorted[sorted.length - 1] - sorted[0];
-    const oddCount = allNums.filter(n => n % 2 === 1).length;
-    const evenCount = allNums.length - oddCount;
-    const bigCount = allNums.filter(n => n >= cfg.bigThreshold).length;
-    const smallCount = allNums.length - bigCount;
-    const primeCount = allNums.filter(n => isPrime(n)).length;
-    const compositeCount = allNums.length - primeCount;
-
-    const zones = main.map(n => getZone(n, cfg));
-    const zoneRatio = `${zones.filter(z => z === 1).length}:${zones.filter(z => z === 2).length}:${zones.filter(z => z === 3).length}`;
-
-    // 012路（除3余数）
-    const road0 = main.filter(n => n % 3 === 0).length;
-    const road1 = main.filter(n => n % 3 === 1).length;
-    const road2 = main.filter(n => n % 3 === 2).length;
-    const road012 = `${road0}:${road1}:${road2}`;
-
-    // 连号
-    let consecCount = 0;
-    const sortedMain = [...main].sort((a, b) => a - b);
-    for (let i = 1; i < sortedMain.length; i++) {
-      if (sortedMain[i] - sortedMain[i - 1] === 1) consecCount++;
-    }
-
-    // AC值（仅对6个号码有效）
-    let acValue = null;
-    if (main.length >= 2) {
-      const diffs = new Set();
-      for (let i = 0; i < main.length; i++) {
-        for (let j = i + 1; j < main.length; j++) {
-          diffs.add(Math.abs(main[i] - main[j]));
-        }
-      }
-      acValue = diffs.size - (main.length - 1);
-    }
-
-    // 尾数比
-    const tails = main.map(n => n % 10);
-    const tailSet = new Set(tails);
-    const tailRatio = `${tailSet.size}:${main.length - tailSet.size}`;
-
-    await pool.query(`
-      INSERT INTO lottery_draw_analysis
-        (draw_id, lottery_code, issue, sum_value, span_value,
-         odd_count, even_count, big_count, small_count,
-         prime_count, composite_count, zone_ratio, road_012,
-         consecutive_count, ac_value, tail_ratio)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-      ON CONFLICT(draw_id) DO UPDATE SET
-        sum_value = EXCLUDED.sum_value, span_value = EXCLUDED.span_value,
-        odd_count = EXCLUDED.odd_count, even_count = EXCLUDED.even_count,
-        big_count = EXCLUDED.big_count, small_count = EXCLUDED.small_count,
-        prime_count = EXCLUDED.prime_count, composite_count = EXCLUDED.composite_count,
-        zone_ratio = EXCLUDED.zone_ratio, road_012 = EXCLUDED.road_012,
-        consecutive_count = EXCLUDED.consecutive_count, ac_value = EXCLUDED.ac_value,
-        tail_ratio = EXCLUDED.tail_ratio, updated_at = CURRENT_TIMESTAMP
-    `, [
-      row.id, code, row.issue, sumValue, spanValue,
-      oddCount, evenCount, bigCount, smallCount,
-      primeCount, compositeCount, zoneRatio, road012,
-      consecCount, acValue, tailRatio,
-    ]);
-    updated++;
-  }
-
-  console.log(`  [${code}]  新增/更新 ${updated} 条分析记录`);
 }
 
 async function updateNumberStats(pool, code) {
@@ -310,10 +198,9 @@ async function updateTrendStats(pool, code) {
 async function cleanExcluded(pool) {
   console.log('\n清理排除玩法的分析数据...');
   for (const code of EXCLUDED_CODES) {
-    const r1 = await pool.query('DELETE FROM lottery_draw_analysis WHERE lottery_code = $1', [code]);
     const r2 = await pool.query('DELETE FROM number_statistics WHERE lottery_code = $1', [code]);
     const r3 = await pool.query('DELETE FROM trend_statistics WHERE lottery_code = $1', [code]);
-    console.log(`  [${code}] 清理完成: analysis=${r1.rowCount}, stats=${r2.rowCount}, trend=${r3.rowCount}`);
+    console.log(`  [${code}] 清理完成: stats=${r2.rowCount}, trend=${r3.rowCount}`);
   }
 }
 
@@ -340,7 +227,6 @@ async function main() {
   console.log('\n开始更新分析数据...');
   for (const code of codes) {
     console.log(`\n=== ${code} ===`);
-    await updateDrawAnalysis(pool, code);
     await updateNumberStats(pool, code);
     await updateTrendStats(pool, code);
   }

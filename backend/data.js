@@ -27,7 +27,7 @@ function buildExample(id) {
   return {
     typeId: tpl.id,
     type: tpl.name,
-    period: `示例-${tpl.id.toUpperCase()}`,
+    period: '',
     date: '今日示例',
     raw,
     formatted: formatText(tpl.id, raw),

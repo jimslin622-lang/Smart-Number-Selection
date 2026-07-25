@@ -1,6 +1,8 @@
 -- ========================================
--- lottery_draw 新表结构（替代旧表 templates / history_numbers / api_events）
+-- lottery_draw 表结构
 -- ========================================
+
+DROP TABLE IF EXISTS lottery_draw_analysis CASCADE;
 
 -- 彩种类型
 CREATE TABLE IF NOT EXISTS lottery_type (
@@ -29,29 +31,6 @@ CREATE TABLE IF NOT EXISTS lottery_draw (
   UNIQUE(lottery_code, issue)
 );
 CREATE INDEX IF NOT EXISTS idx_lottery_draw_code_date ON lottery_draw(lottery_code, draw_date DESC, id DESC);
-
--- 开奖分析
-CREATE TABLE IF NOT EXISTS lottery_draw_analysis (
-  id BIGSERIAL PRIMARY KEY,
-  draw_id BIGINT NOT NULL REFERENCES lottery_draw(id) UNIQUE,
-  lottery_code TEXT NOT NULL,
-  issue TEXT NOT NULL,
-  sum_value INTEGER NOT NULL DEFAULT 0,
-  span_value INTEGER NOT NULL DEFAULT 0,
-  odd_count INTEGER NOT NULL DEFAULT 0,
-  even_count INTEGER NOT NULL DEFAULT 0,
-  big_count INTEGER NOT NULL DEFAULT 0,
-  small_count INTEGER NOT NULL DEFAULT 0,
-  prime_count INTEGER NOT NULL DEFAULT 0,
-  composite_count INTEGER NOT NULL DEFAULT 0,
-  zone_ratio TEXT NOT NULL DEFAULT '',
-  road_012 TEXT NOT NULL DEFAULT '',
-  consecutive_count INTEGER NOT NULL DEFAULT 0,
-  ac_value INTEGER,
-  tail_ratio TEXT NOT NULL DEFAULT '',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
 
 -- 号码统计
 CREATE TABLE IF NOT EXISTS number_statistics (
@@ -120,7 +99,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 用户记录
 CREATE TABLE IF NOT EXISTS user_records (
-  id BIGSERIAL PRIMARY KEY,
+  id TEXT PRIMARY KEY,
   lottery_code TEXT NOT NULL DEFAULT 'lhc',
   method_id TEXT NOT NULL DEFAULT 'weighted',
   method_name TEXT NOT NULL DEFAULT '',
@@ -131,6 +110,7 @@ CREATE TABLE IF NOT EXISTS user_records (
   score_dims JSONB NOT NULL DEFAULT '{}',
   source TEXT NOT NULL DEFAULT 'manual',
   batch_id TEXT,
+  period TEXT NOT NULL DEFAULT '',
   starred BOOLEAN NOT NULL DEFAULT false,
   openid TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

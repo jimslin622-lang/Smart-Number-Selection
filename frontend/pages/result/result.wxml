@@ -27,7 +27,7 @@
       <view class="period-btn {{periodCount === 20 ? 'active' : ''}}" bindtap="setPeriods" data-count="20">20组</view>
       <view class="period-btn {{periodCount === 30 ? 'active' : ''}}" bindtap="setPeriods" data-count="30">30组</view>
       <view class="period-btn {{periodCount === 50 ? 'active' : ''}}" bindtap="setPeriods" data-count="50">50组</view>
-      <view class="period-btn {{periodCount >= 300 ? 'active' : ''}}" bindtap="setPeriods" data-count="-1">全部</view>
+      <view class="period-btn {{isAllSelected ? 'active' : ''}}" bindtap="setPeriods" data-count="-1">全部</view>
     </view>
   </view>
 

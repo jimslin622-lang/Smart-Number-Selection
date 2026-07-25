@@ -9,7 +9,7 @@ async function main() {
   const pool = getPool();
   if (!pool) throw new Error('Database config missing');
 
-  const history = require('../utils/lottery/marksix-history');
+  const history = require('../../frontend/utils/lottery/marksix-history');
   console.log(`总缓存: ${history.length} 期`);
 
   let inserted = 0, skipped = 0;
@@ -21,11 +21,17 @@ async function main() {
 
     // 日期格式: "2025-01-15" 或 "15/1/2025"
     let drawDate;
-    if (dateStr.includes('-')) {
+    if (dateStr && dateStr.includes('-')) {
       drawDate = dateStr;
-    } else {
+    } else if (dateStr) {
       const parts = dateStr.split('/');
-      drawDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      if (parts.length === 3) {
+        drawDate = `${parts[2]}-${String(parts[1]).padStart(2, '0')}-${String(parts[0]).padStart(2, '0')}`;
+      } else {
+        drawDate = '2026-07-01';
+      }
+    } else {
+      drawDate = '2026-07-01';
     }
 
     try {

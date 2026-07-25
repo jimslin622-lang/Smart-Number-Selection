@@ -15,9 +15,7 @@
     <view class="export-btn export-btn-used" bindtap="exportPeriod">
       <text class="export-btn-text">导出已随机号码</text>
     </view>
-    <view class="export-btn export-btn-rec" bindtap="exportRecommend">
-      <text class="export-btn-text">导出未随机号码</text>
-    </view>
+    <view class="export-btn export-btn-rec" bindtap="exportRecommend" wx:if="{{selectedId !== 'kl8'}}">导出未随机号码</view>
   </view>
   <view class="last-draw" wx:if="{{latestResult}}">
     <text class="last-label">上组</text>
@@ -335,7 +333,6 @@
     <!-- 导出按钮 -->
     <view class="export-area">
       <button class="export-doc-btn" bindtap="showExportDoc">导出全部号码文档（{{allHistory.length}}注）</button>
-      <button class="export-analysis-btn" bindtap="showExportAnalysis">导出随机号码统计报告</button>
     </view>
 
     <!-- 保存按钮 -->

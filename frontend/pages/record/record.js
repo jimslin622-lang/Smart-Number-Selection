@@ -105,6 +105,13 @@ Page({
     this.setData({ history, filter });
   },
 
+  switchLottery(e) {
+    const code = e.currentTarget.dataset.code;
+    this.setData({ lotteryFilter: code }, () => {
+      this.loadHistory();
+    });
+  },
+
   switchFilter(e) {
     const filter = e.currentTarget.dataset.filter;
     this.applyFilter(filter);
@@ -118,7 +125,7 @@ Page({
     request({
       path: '/api/v1/records/star',
       method: 'PUT',
-      data: { id: Number(id), starred: newFavorite }
+      data: { id: id, starred: newFavorite }
     }).then(() => {
       item.favorite = newFavorite;
       const allHistory = [...this.data.allHistory];
@@ -151,7 +158,7 @@ Page({
           request({
             path: '/api/v1/records',
             method: 'DELETE',
-            data: { ids: [Number(id)] }
+            data: { ids: [id] }
           }).then(() => {
             const allHistory = [...this.data.allHistory];
             const newHistory = allHistory.filter(r => String(r.id) !== String(id));
@@ -170,7 +177,7 @@ Page({
       content: '确定要清空所有数字记录吗？',
       success: (res) => {
         if (res.confirm) {
-          const ids = this.data.allHistory.map(r => Number(r.id));
+          const ids = this.data.allHistory.map(r => r.id);
           if (ids.length === 0) return;
           request({
             path: '/api/v1/records',

@@ -1,4 +1,5 @@
 const { getPool, closePool } = require('../db/client');
+const { cleanPeriodRecords } = require('../db/repository');
 const { fetchMarkSixResults, HKJC_RESULTS_URL } = require('../hkjc-marksix');
 
 async function sync() {
@@ -19,6 +20,9 @@ async function sync() {
         DO UPDATE SET updated_at = now()
       `, ['lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
       inserted++;
+      cleanPeriodRecords('lhc', row.period).then(del => {
+        if (del > 0) console.log(`  清理 period_records: lhc ${row.period} -> ${del} 条`);
+      }).catch(() => {});
     } catch (e) {
       // 跳过重复
     }
@@ -55,6 +59,9 @@ async function syncFromModule(count = 50) {
         DO UPDATE SET updated_at = now()
       `, ['lhc', row.period, row.sampleDate, JSON.stringify(numbers), 'hkjc.com']);
       inserted++;
+      cleanPeriodRecords('lhc', row.period).then(del => {
+        if (del > 0) console.log(`  清理 period_records: lhc ${row.period} -> ${del} 条`);
+      }).catch(() => {});
     } catch (e) {
       // 跳过重复
     }

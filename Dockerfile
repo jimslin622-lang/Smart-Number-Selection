@@ -7,10 +7,15 @@ COPY backend/package.json backend/package-lock.json* ./
 RUN npm install --omit=dev
 
 # 复制后端代码
-COPY backend/server ./server
+COPY backend/server.js ./
+COPY backend/data.js ./
+COPY backend/random.js ./
+COPY backend/hkjc-marksix.js ./
+COPY backend/response.js ./
+COPY backend/config.js ./
+COPY backend/config ./config
 COPY backend/scripts ./scripts
 COPY backend/utils ./utils
-COPY backend/config ./config
 COPY backend/db ./db
 COPY backend/middleware ./middleware
 COPY backend/routes ./routes
@@ -24,4 +29,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["node", "server/server.js"]
+CMD ["node", "server.js"]

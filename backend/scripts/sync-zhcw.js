@@ -9,6 +9,7 @@
  */
 
 const { query, closePool } = require('../db/client');
+const { cleanPeriodRecords } = require('../db/repository');
 
 // 中彩网玩法ID映射
 const ZHCW_LOTTERY_IDS = {
@@ -17,7 +18,7 @@ const ZHCW_LOTTERY_IDS = {
   qlc: '3',    // 七位
   kl8: '6',    // 八选
   dlt: '281',  // 双区
-  qxc: '282',  // 七星模式
+  qxc: '287',  // 七星模式（新版6+1）
   pl3: '283',  // 三星
   pl5: '284',  // 五星
 };
@@ -93,7 +94,7 @@ function parseNumbers(typeId, record) {
     // 快8 所有号码都在 frontWinningNum
     frontNumbers = frontWinningNum.split(' ').filter(Boolean).map(n => n.padStart(2, '0'));
     backNumbers = [];
-  } else if (typeId === 'fc3d' || typeId === 'pl3' || typeId === 'pl5' || typeId === 'qxc') {
+  } else if (typeId === 'fc3d' || typeId === 'pl3' || typeId === 'pl5') {
     // 这些玩法所有号码在 frontWinningNum
     frontNumbers = frontWinningNum.split(' ').filter(Boolean).map(n => n.padStart(2, '0'));
     backNumbers = [];
@@ -146,9 +147,9 @@ async function saveToDb(typeId, records) {
     let numbers = { front: frontNumbers, back: backNumbers };
     if (typeId === 'ssq') {
       numbers = { red: frontNumbers, blue: backNumbers };
-    } else if (typeId === 'dlt') {
+    } else if (typeId === 'dlt' || typeId === 'qxc') {
       numbers = { front: frontNumbers, back: backNumbers };
-    } else if (typeId === 'qlc' || typeId === 'qxc' || typeId === 'fc3d' || typeId === 'pl3' || typeId === 'pl5') {
+    } else if (typeId === 'qlc' || typeId === 'fc3d' || typeId === 'pl3' || typeId === 'pl5') {
       numbers = { numbers: frontNumbers };
     } else if (typeId === 'kl8') {
       numbers = { numbers: frontNumbers };
@@ -163,6 +164,10 @@ async function saveToDb(typeId, records) {
         [typeId, period, sampleDate, JSON.stringify(numbers)]
       );
       inserted++;
+      // 开奖数据入库后，清理该期 period_records（已开奖，不再需要去重）
+      cleanPeriodRecords(typeId, period).then(deleted => {
+        if (deleted > 0) console.log(`  清理 period_records: ${typeId} ${period} -> ${deleted} 条`);
+      }).catch(() => {});
     } catch (err) {
       if (err.code === '23505') {
         skipped++;

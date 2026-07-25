@@ -1,6 +1,5 @@
 /**
- * 数据库 Repository — 从新表 (lottery_draw, lottery_type, lottery_draw_analysis 等) 读取数据
- * ⚠️ 旧表 history_numbers 和 templates 已废弃，数据迁移至 lottery_draw 和 lottery_type
+ * 数据库 Repository — 从 lottery_draw, lottery_type, number_statistics 等表读取数据
  */
 const { query, hasDbConfig } = require('./client');
 
@@ -75,38 +74,6 @@ async function getDrawSummary() {
     GROUP BY lottery_code
     ORDER BY lottery_code
   `);
-  return result.rows;
-}
-
-// ============ 示例分析 ============
-
-/**
- * 获取某期示例分析
- */
-async function getDrawAnalysis(lotteryCode, issue) {
-  if (!hasDbConfig()) return null;
-  const result = await query(`
-    SELECT *
-    FROM lottery_draw_analysis
-    WHERE lottery_code = $1 AND issue = $2
-  `, [lotteryCode, issue]);
-  return result.rows[0] || null;
-}
-
-/**
- * 获取最近N期的示例分析
- */
-async function listDrawAnalysis(lotteryCode, count = 20) {
-  if (!hasDbConfig()) return null;
-  const safeCount = Math.min(Math.max(Number(count) || 20, 1), 500);
-  const result = await query(`
-    SELECT a.*
-    FROM lottery_draw_analysis a
-    JOIN lottery_draw d ON d.id = a.draw_id
-    WHERE a.lottery_code = $1
-    ORDER BY d.draw_date DESC, d.id DESC
-    LIMIT $2
-  `, [lotteryCode, safeCount]);
   return result.rows;
 }
 
@@ -191,6 +158,17 @@ async function listIssueCalendar(lotteryCode, count = 20) {
   return result.rows;
 }
 
+// ============ period_records 清理 ============
+
+async function cleanPeriodRecords(lotteryCode, period) {
+  if (!hasDbConfig()) return 0;
+  const result = await query(
+    'DELETE FROM period_records WHERE lottery_code = $1 AND period = $2',
+    [lotteryCode, period]
+  );
+  return result.rowCount || 0;
+}
+
 module.exports = {
   // 新 API
   listLotteryTypes,
@@ -198,8 +176,7 @@ module.exports = {
   listDraws,
   countDraws,
   getDrawSummary,
-  getDrawAnalysis,
-  listDrawAnalysis,
+
   listNumberStats,
   getMarksixProperty,
   listMarksixProperties,
@@ -209,4 +186,6 @@ module.exports = {
   getLatestHistory,
   listHistory,
   countHistory,
+  // 清理
+  cleanPeriodRecords,
 };

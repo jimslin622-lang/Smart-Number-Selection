@@ -116,8 +116,6 @@ let _templatesCache = null;
 /**
  * 获取玩法列表（含真实 historyCount，来自 lottery_draw 表）
  * 缓存 5 分钟
- * ⚠️ HISTORY_COUNTS 硬编码已移除，统一通过 API 获取
- * 旧表 history_numbers 已废弃，数据迁移至 lottery_draw
  */
 function getTemplates() {
   if (_templatesCache && Date.now() - _templatesCache.ts < 300000) {
@@ -152,7 +150,7 @@ function getLatestPeriod(typeId) {
   const id = getTypeId(typeId);
   if (!USE_REMOTE_API) return Promise.resolve('');
   return request({ path: '/api/v1/examples/latest', query: { typeId: id } })
-    .then(data => data && data.period ? data.period : '')
+    .then(data => data && data.nextIssue ? data.nextIssue : '')
     .catch(() => '');
 }
 

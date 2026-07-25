@@ -66,7 +66,7 @@ Page({
     };
     const parsed = (result.parsed || []).map(item => ({ ...item }));
     parsed.forEach(item => {
-      item.isSpecial = item.label.includes('特别') || item.label.includes('扩展');
+      item.isSpecial = item.label.includes('特别') || item.label.includes('扩展') || item.label.includes('附加') || item.label.includes('特码');
       item.isSub = item.label.includes('副') || item.label.includes('后') || item.label.includes('后区') || item.label.includes('蓝') || item.label.includes('特别') || item.label.includes('扩展');
       if (item.isSpecial && colors.special) {
         item.ballClass = colors.special;
