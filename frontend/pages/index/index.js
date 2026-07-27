@@ -27,7 +27,7 @@ Page({
   },
 
   onShow() {
-    // 首页重新显示时不强制刷新，避免 tab 切换造成多余 setData 和卡顿
+    this.updateLatestResult(this.data.selectedTypeId);
   },
 
   onSelectType(e) {

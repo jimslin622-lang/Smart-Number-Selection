@@ -58,7 +58,6 @@
         <view class="latest-text-group">
           <view class="latest-title-row">
             <text class="latest-title">{{latestResult.type}}</text>
-            <text class="latest-period">{{latestResult.period}}</text>
           </view>
         </view>
       </view>

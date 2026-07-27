@@ -64,31 +64,19 @@ function getLatestResult(typeId) {
   if (USE_REMOTE_API) {
     return request({ path: '/api/v1/examples/latest', query: { typeId: id } })
       .then(normalizeRemoteResult)
-      .catch(() => {
-        if (id === 'lhc') return normalizeMarkSixRow(MARKSIX_LATEST);
-        return MOCK_LATEST[id] || null;
-      });
+      .catch(() => null);
   }
-  if (id === 'lhc') return Promise.resolve(normalizeMarkSixRow(MARKSIX_LATEST));
-  return Promise.resolve(MOCK_LATEST[id] || null);
+  return Promise.resolve(null);
 }
 
 function getHistoryResults(typeName, count = 20) {
   const id = getTypeId(typeName);
-  const name = getTypeName(typeName);
   if (USE_REMOTE_API) {
     return request({ path: '/api/v1/examples/history', query: { typeId: id, count } })
       .then(list => (list || []).map(normalizeRemoteResult))
-      .catch(() => {
-        if (id === 'lhc') return getMarkSixHistory().slice(0, count).map(normalizeMarkSixRow);
-        return getMockResults(name).slice(0, count);
-      });
+      .catch(() => null);
   }
-  if (id === 'lhc') {
-    const history = getMarkSixHistory();
-    return Promise.resolve(history.slice(0, count).map(normalizeMarkSixRow));
-  }
-  return Promise.resolve(getMockResults(name).slice(0, count));
+  return Promise.resolve(null);
 }
 
 function generateRemoteNumbers(typeOrId, count = 1) {

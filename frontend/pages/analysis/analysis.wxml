@@ -11,7 +11,7 @@
   <view class="card stat-panel" wx:if="{{selectedId === 'lhc' || selectedId === 'ssq' || selectedId === 'dlt' || selectedId === 'qlc' || selectedId === 'qxc'}}">
     <view class="section-header">
       <view>
-        <text class="section-title">随机参考统计</text>
+        <text class="section-title">统计</text>
         <text class="section-sub block">{{statRangeText}}</text>
       </view>
       <view class="mode-switch">
