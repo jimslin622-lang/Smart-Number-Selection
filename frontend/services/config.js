@@ -4,7 +4,7 @@
 
 const API_CONFIG = {
   USE_REMOTE_API: true,
-  API_BASE_URL: 'https://zhinengxuanhao.cn',
+  API_BASE_URL: 'https://api.zhinengxuanhao.cn',
   API_FALLBACK_BASE_URLS: [],
   TIMEOUT: 15000,
 };

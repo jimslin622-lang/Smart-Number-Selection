@@ -798,11 +798,23 @@ Page({
         wx.hideLoading();
         
         const responseData = res.data && res.data.data ? res.data.data : res.data;
+        // 优先使用后端返回的下载地址；若为本地回环地址（服务器旧代码硬编码 127.0.0.1），
+        // 则改用当前 API 域名拼下载地址，保证小程序可访问
+        let downloadUrl = '';
         if (responseData && responseData.downloadUrl) {
+          downloadUrl = responseData.downloadUrl;
+          if (/http:\/\/127\.0\.0\.1/.test(downloadUrl) || /http:\/\/localhost/.test(downloadUrl)) {
+            downloadUrl = '';
+          }
+        }
+        if (responseData && responseData.filename && !downloadUrl) {
+          downloadUrl = API_BASE_URL + '/api/v1/export/download/' + responseData.filename;
+        }
+        if (downloadUrl) {
           wx.showLoading({ title: '下载中...' });
           
           wx.downloadFile({
-            url: responseData.downloadUrl,
+            url: downloadUrl,
             success: (downloadRes) => {
               wx.hideLoading();
               

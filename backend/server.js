@@ -575,8 +575,10 @@ async function route(req, res) {
         
         console.log('Xlsx file written successfully');
         
-        // 返回下载 URL
-        const downloadUrl = `http://127.0.0.1:3000/api/v1/export/download/${safeFilename}`;
+        // 返回下载 URL（根据请求头动态生成，避免硬编码本地地址导致小程序无法下载）
+        const proto = req.headers['x-forwarded-proto'] || 'http';
+        const host = req.headers.host || `${config.host}:${config.port}`;
+        const downloadUrl = `${proto}://${host}/api/v1/export/download/${safeFilename}`;
         ok(res, { downloadUrl, filename: safeFilename });
         log(req, 200, startedAt); return;
       } catch (err) {
