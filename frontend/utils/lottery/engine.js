@@ -156,18 +156,14 @@ async function _loadRealFreq() {
   _freqPromise = (async () => {
     try {
       const { request } = require('../../services/request');
+      // 批量请求，一次获取所有彩种统计
+      const allStats = await request({ path: '/api/v1/stats' });
+      if (!allStats) return;
+      
       const types = Object.keys(LOTTERY_DEFS);
-      const results = await Promise.allSettled(
-        types.map(id =>
-          request({ path: '/api/v1/stats', query: { typeId: id } })
-            .then(stats => ({ id, stats }))
-            .catch(() => ({ id, stats: [] }))
-        )
-      );
-      results.forEach(r => {
-        if (r.status !== 'fulfilled') return;
-        const { id, stats } = r.value;
-        if (!stats || !stats.length) return;
+      types.forEach(id => {
+        const stats = allStats[id] || [];
+        if (!stats.length) return;
         const def = LOTTERY_DEFS[id];
         if (!def) return;
         const [lo, hi] = def.main;
@@ -178,7 +174,6 @@ async function _loadRealFreq() {
             freq[n] = s.appear_count || 0;
           }
         });
-        // 按 appear_count 降序排序
         const arr = Object.entries(freq).map(([k, v]) => [+k, v]).sort((a, b) => b[1] - a[1]);
         const n = hi - lo + 1;
         const hotCount = Math.max(1, Math.floor(n * 0.3));

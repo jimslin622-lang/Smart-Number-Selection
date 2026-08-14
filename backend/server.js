@@ -397,9 +397,25 @@ async function route(req, res) {
     if (req.method === 'GET' && reqPath === '/api/v1/analysis') { const typeId = url.searchParams.get('typeId') || 'lhc'; ok(res, buildAnalysis(typeId)); log(req, 200, startedAt); return; }
 
     if (req.method === 'GET' && reqPath === '/api/v1/stats') {
-      const typeId = url.searchParams.get('typeId') || 'lhc';
-      const stats = await repo.listNumberStats(typeId).catch(() => null);
-      ok(res, stats && stats.length ? stats : []);
+      const typeId = url.searchParams.get('typeId');
+      if (typeId) {
+        const stats = await repo.listNumberStats(typeId).catch(() => null);
+        ok(res, stats && stats.length ? stats : []);
+      } else {
+        // 批量查询所有彩种统计
+        const pool = getPool();
+        const allStats = {};
+        if (pool) {
+          const result = await pool.query(
+            'SELECT lottery_code, number_value, appear_count, current_miss, max_miss, avg_miss, hot_score, cold_score, probability, ai_score FROM number_statistics ORDER BY lottery_code, number_value'
+          ).catch(() => ({ rows: [] }));
+          result.rows.forEach(r => {
+            if (!allStats[r.lottery_code]) allStats[r.lottery_code] = [];
+            allStats[r.lottery_code].push(r);
+          });
+        }
+        ok(res, allStats);
+      }
       log(req, 200, startedAt); return;
     }
 

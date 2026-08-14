@@ -211,10 +211,14 @@ async function cleanExcluded(pool) {
 async function main() {
   const pool = getPool();
   const args = process.argv.slice(2);
+  // 仅当作为独立脚本运行时才关闭连接池；被 server 进程内调度器调用时不关，
+  // 否则会把共享的 pg pool 关掉，导致后续所有 DB 请求报
+  // "Cannot use a pool after calling end on the pool"
+  const isStandalone = require.main === module;
 
   if (args.includes('--clean')) {
     await cleanExcluded(pool);
-    await closePool();
+    if (isStandalone) await closePool();
     return;
   }
 
@@ -236,7 +240,7 @@ async function main() {
   }
 
   console.log('\n✅ 全部更新完成');
-  await closePool();
+  if (isStandalone) await closePool();
 }
 
 if (require.main === module) {
