@@ -1,12 +1,9 @@
 const { request } = require('../../services/request');
-const { login, getCachedUser, clearAuth } = require('../../utils/auth');
+const { getDeviceId } = require('../../utils/device');
 
 Page({
   data: {
-    user: null,
-    isLoggedIn: false,
-    nickname: '',
-    avatarUrl: '',
+    deviceId: '',
     stats: {
       total: 0,
       starred: 0,
@@ -20,33 +17,7 @@ Page({
   },
 
   loadData() {
-    this.setData({ loading: true });
-
-    const cached = getCachedUser();
-    if (cached) {
-      this.setData({
-        user: cached,
-        isLoggedIn: true,
-        nickname: cached.nickname || '',
-        avatarUrl: cached.avatar_url || '',
-      });
-    }
-
-    login().then(user => {
-      this.setData({
-        user,
-        isLoggedIn: true,
-        nickname: user.nickname || '',
-        avatarUrl: user.avatar_url || '',
-      });
-      this.loadStats();
-    }).catch(err => {
-      console.error('login error', err);
-      this.setData({ loading: false });
-    });
-  },
-
-  loadStats() {
+    this.setData({ loading: true, deviceId: getDeviceId() });
     request({ path: '/api/v1/auth/me' }).then(data => {
       if (data && data.stats) {
         this.setData({ stats: data.stats });
@@ -54,19 +25,6 @@ Page({
       this.setData({ loading: false });
     }).catch(() => {
       this.setData({ loading: false });
-    });
-  },
-
-  getUserProfile() {
-    const app = getApp();
-    app.login().then(user => {
-      this.setData({
-        user,
-        isLoggedIn: true,
-      });
-      this.loadStats();
-    }).catch(() => {
-      wx.showToast({ title: '登录失败', icon: 'none' });
     });
   },
 
@@ -121,26 +79,6 @@ Page({
           }).catch(() => {
             wx.showToast({ title: '清空失败', icon: 'none' });
           });
-        }
-      },
-    });
-  },
-
-  logout() {
-    wx.showModal({
-      title: '退出登录',
-      content: '退出后需要重新登录才能查看记录',
-      success: (res) => {
-        if (res.confirm) {
-          clearAuth();
-          this.setData({
-            user: null,
-            isLoggedIn: false,
-            nickname: '',
-            avatarUrl: '',
-            stats: { total: 0, starred: 0, byLottery: [] },
-          });
-          wx.showToast({ title: '已退出', icon: 'success' });
         }
       },
     });

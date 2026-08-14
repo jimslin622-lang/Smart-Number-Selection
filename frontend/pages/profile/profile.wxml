@@ -1,12 +1,11 @@
 <view class="container">
-  <!-- 用户信息 -->
+  <!-- 设备信息 -->
   <view class="profile-header">
     <view class="avatar">
-      <image wx:if="{{avatarUrl}}" class="avatar-img" src="{{avatarUrl}}" mode="aspectFill"></image>
-      <text wx:else class="avatar-icon">👤</text>
+      <text class="avatar-icon">📱</text>
     </view>
-    <text class="profile-name">{{nickname}}</text>
-    <text class="profile-desc">欢迎使用</text>
+    <text class="profile-name">本设备</text>
+    <text class="profile-desc">设备号：{{deviceId}}</text>
   </view>
 
   <!-- 统计数据 -->

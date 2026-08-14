@@ -1,4 +1,5 @@
 const { API_BASE_URL, TIMEOUT, USE_REMOTE_API } = require('./config');
+const { getDeviceId } = require('../utils/device');
 
 function buildUrl(baseUrl, path, query = {}) {
   const qs = Object.keys(query)
@@ -25,6 +26,9 @@ function requestOnce({ baseUrl, path, method = 'GET', query, data, header }) {
   if (token) {
     headers['Authorization'] = 'Bearer ' + token;
   }
+
+  // 自动带上设备标识（未登录时后端用它区分用户归属）
+  headers['X-Device-Id'] = getDeviceId();
 
   return new Promise((resolve, reject) => {
     wx.request({

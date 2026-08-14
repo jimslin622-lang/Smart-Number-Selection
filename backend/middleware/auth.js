@@ -10,7 +10,9 @@ function authMiddleware(req, res, next) {
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
 
   if (!token) {
-    req.user = { openid: 'anonymous' };
+    // 未登录：优先用设备标识区分用户归属；无设备标识才降级为统一 anonymous
+    const deviceId = rawHeaders['x-device-id'] || rawHeaders['X-Device-Id'] || '';
+    req.user = { openid: deviceId ? `dev_${deviceId}` : 'anonymous' };
     return next();
   }
 
@@ -18,7 +20,8 @@ function authMiddleware(req, res, next) {
     const decoded = verify(token);
     req.user = { openid: decoded.openid };
   } catch (err) {
-    req.user = { openid: 'anonymous' };
+    const deviceId = rawHeaders['x-device-id'] || rawHeaders['X-Device-Id'] || '';
+    req.user = { openid: deviceId ? `dev_${deviceId}` : 'anonymous' };
   }
 
   next();

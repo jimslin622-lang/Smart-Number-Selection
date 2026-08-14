@@ -1,8 +1,9 @@
-const auth = require('./utils/auth');
+const { getDeviceId } = require('./utils/device');
 
 App({
   globalData: {
     systemInfo: { screenWidth: 375, screenHeight: 812, pixelRatio: 2 },
+    deviceId: '',
     user: null,
     isLoggedIn: false,
   },
@@ -23,27 +24,7 @@ App({
       }
     } catch (e) {}
 
-    // 自动登录
-    this.autoLogin();
-  },
-
-  autoLogin() {
-    auth.login().then(user => {
-      this.globalData.user = user;
-      this.globalData.isLoggedIn = true;
-      console.log('自动登录成功');
-    }).catch(err => {
-      console.warn('自动登录失败:', err.message);
-      // 登录失败不影响使用，匿名用户也能操作
-    });
-  },
-
-  // 提供给页面调用的登录方法
-  login() {
-    return auth.login().then(user => {
-      this.globalData.user = user;
-      this.globalData.isLoggedIn = true;
-      return user;
-    });
+    // 初始化设备标识（未登录时用它区分用户归属，无需微信登录）
+    this.globalData.deviceId = getDeviceId();
   },
 });

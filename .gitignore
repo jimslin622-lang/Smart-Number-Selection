@@ -10,6 +10,7 @@ package-lock.json
 
 # 后端服务
 server/.env
+backend/.env
 
 # IDE
 .vscode/

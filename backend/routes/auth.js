@@ -6,7 +6,7 @@ const { ok, fail } = require('../response');
 const { query, hasDbConfig } = require('../db/client');
 
 // 微信小程序 appid / secret（从环境变量读取）
-const APPID = process.env.WX_APPID || 'wx83dfcd155101e160';
+const APPID = process.env.WX_APPID || 'wx94a497f9c9d5a8fc';
 const SECRET = process.env.WX_SECRET || '';
 
 /**
