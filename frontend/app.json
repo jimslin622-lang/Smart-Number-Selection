@@ -4,8 +4,7 @@
     "pages/detail/detail",
     "pages/result/result",
     "pages/record/record",
-    "pages/profile/profile",
-    "pages/analysis/analysis"
+    "pages/profile/profile"
   ],
   "window": {
     "navigationBarTitleText": "智能随机助手",

@@ -1212,7 +1212,7 @@ Page({
     safeNavigateTo(`/pages/result/result?type=${encodeURIComponent(this.data.selectedType)}`);
   },
   goAnalysis() {
-    safeNavigateTo(`/pages/analysis/analysis?type=${encodeURIComponent(this.data.selectedType)}`);
+    wx.showToast({ title: '数字洞察功能已下线', icon: 'none' });
   },
 });
 

@@ -139,13 +139,6 @@ Page({
   },
 
   goAnalysis() {
-    const id = this.data.selectedTypeId;
-    // fc3d/pl3/pl5/kl8 不支持数字洞察
-    if (['fc3d', 'pl3', 'pl5', 'kl8'].includes(id)) {
-      wx.showToast({ title: '该玩法暂不支持数字洞察', icon: 'none' });
-      return;
-    }
-    const type = this.data.selectedTypeName;
-    safeNavigateTo(`/pages/analysis/analysis?type=${encodeURIComponent(type)}`);
+    wx.showToast({ title: '数字洞察功能已下线', icon: 'none' });
   }
 });

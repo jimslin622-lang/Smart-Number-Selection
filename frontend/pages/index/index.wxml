@@ -62,10 +62,7 @@
         </view>
       </view>
       <view class="latest-actions">
-        <view class="btn-analysis" wx:if="{{selectedTypeId !== 'fc3d' && selectedTypeId !== 'pl3' && selectedTypeId !== 'pl5' && selectedTypeId !== 'kl8'}}" catchtap="goAnalysis">
-           <text class="btn-analysis-text">数字洞察</text>
-         </view>
-         <view class="btn-history" catchtap="goResult">
+        <view class="btn-history" catchtap="goResult">
            <text class="btn-history-text">查看详情</text>
         </view>
       </view>
