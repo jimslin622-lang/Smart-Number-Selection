@@ -56,9 +56,9 @@
           </view>
         </view>
         <view class="latest-text-group">
-          <view class="latest-title-row">
-            <text class="latest-title">{{latestResult.type}}</text>
-          </view>
+           <view class="latest-title-row">
+             <text class="latest-title">{{selectedTypeObj.name}}</text>
+           </view>
         </view>
       </view>
       <view class="latest-actions">
