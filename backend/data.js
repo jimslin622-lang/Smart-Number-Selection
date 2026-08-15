@@ -3,7 +3,7 @@ const { generateById, formatDisplay, formatText, parseDisplay } = require('./ran
 // ⚠️ 废弃：templates 内存数据仅作为数据库不可用时的 fallback
 // 新数据从 lottery_draw 表读取，见 repository.js
 const templates = [
-  { id: 'lhc', name: '6+1模式', desc: '6+1数字', weeklyDraws: 3, drawDays: ['二', '四', '六/日'], iconText: '6' },
+  { id: 'lhc', name: '港', desc: '6+1数字', weeklyDraws: 3, drawDays: ['二', '四', '六/日'], iconText: '6' },
   { id: 'ssq', name: '红蓝模式', desc: '6红+1蓝', weeklyDraws: 3, drawDays: ['二', '四', '日'], iconText: '红' },
   { id: 'dlt', name: '双区模式', desc: '5前+2后', weeklyDraws: 3, drawDays: ['一', '三', '六'], iconText: '双' },
   { id: 'qlc', name: '七位模式', desc: '7个号码', weeklyDraws: 3, drawDays: ['一', '三', '五'], iconText: '7' },

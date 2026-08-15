@@ -3,7 +3,7 @@ const { formatNumbers, formatDisplay } = require('./formatter');
 
 // ==================== 模拟示例组合 ====================
 const MOCK_LATEST = {
-  lhc: { type: '6+1模式', period: '示例A-01', date: '今日示例', display: '主码：05 12 18 23 31 42\n附加号：38',
+  lhc: { type: '港', period: '示例A-01', date: '今日示例', display: '主码：05 12 18 23 31 42\n附加号：38',
     parsed:[{label:'主码',numbers:['05','12','18','23','31','42']},{label:'附加号',numbers:['38']}] },
   ssq: { type: '红蓝模式', period: '示例B-01', date: '今日示例', display: '主区：01 09 13 18 24 27\n副区：11',
     parsed:[{label:'主区',numbers:['01','09','13','18','24','27']},{label:'副区',numbers:['11']}] },
@@ -53,7 +53,7 @@ function getMockResults(typeName) {
     // 生成看起来像真实期号的格式
     let period;
     const year = now.getFullYear();
-    if (typeName === '6+1模式') {
+    if (typeName === '港') {
       const shortYear = String(year).slice(-2);
       period = `${shortYear}/${String(100 - i).padStart(3, '0')}`;
     } else if (typeName === '红蓝模式' || typeName === '双区模式' || typeName === '七位模式') {

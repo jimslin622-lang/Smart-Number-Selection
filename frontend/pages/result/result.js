@@ -66,7 +66,7 @@ function flattenParsed(parsed) {
 
 Page({
   data: {
-    type: '6+1模式',
+    type: '港',
     selectedId: 'lhc',
     lotteryTypes: LOTTERY_TYPES,
     results: [],
@@ -81,7 +81,7 @@ Page({
   },
 
   onLoad(options) {
-    const type = options.type ? decodeURIComponent(options.type) : '6+1模式';
+    const type = options.type ? decodeURIComponent(options.type) : '港';
     this.loadTemplateCounts();
     this.refreshResults(type, 20);
   },

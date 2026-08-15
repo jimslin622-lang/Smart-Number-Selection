@@ -27,7 +27,7 @@ const QXC_BACK_HEADERS = Array.from({ length: 10 }, (_, i) => String(i).padStart
 
 Page({
   data: {
-    selectedType: '6+1模式',
+    selectedType: '港',
     selectedId: 'lhc',
     rule: null,
     historyCount: 0,
@@ -66,7 +66,7 @@ Page({
   },
 
   onLoad(options) {
-    const type = options.type ? decodeURIComponent(options.type) : '6+1模式';
+    const type = options.type ? decodeURIComponent(options.type) : '港';
     const id = LOTTERY_MAP[type]?.id || 'lhc';
     const rule = LOTTERY_RULES[id] || LOTTERY_RULES.lhc;
     const typeConfig = LOTTERY_MAP[type] || LOTTERY_MAP.lhc;
@@ -189,7 +189,7 @@ Page({
       return;
     }
 
-    const typeName = id === 'lhc' ? '6+1模式' : id === 'ssq' ? '红蓝模式' : id === 'dlt' ? '双区模式' : id === 'qlc' ? '七位模式' : '七星模式';
+    const typeName = id === 'lhc' ? '港' : id === 'ssq' ? '红蓝模式' : id === 'dlt' ? '双区模式' : id === 'qlc' ? '七位模式' : '七星模式';
     const fetchCount = statCount || this.data.statPeriodCount || 500;
     const trendCount = this.data.trendPeriodCount || 30;
 
@@ -553,7 +553,7 @@ Page({
   setTrendCount(e) {
     const count = Number(e.currentTarget.dataset.count) || 30;
     this.setData({ trendPeriodCount: count, loading: true });
-    const typeName = this.data.selectedId === 'lhc' ? '6+1模式' : this.data.selectedId === 'ssq' ? '红蓝模式' : this.data.selectedId === 'dlt' ? '双区模式' : this.data.selectedId === 'qlc' ? '七位模式' : '七星模式';
+    const typeName = this.data.selectedId === 'lhc' ? '港' : this.data.selectedId === 'ssq' ? '红蓝模式' : this.data.selectedId === 'dlt' ? '双区模式' : this.data.selectedId === 'qlc' ? '七位模式' : '七星模式';
     getHistoryResults(typeName, count)
       .then(results => {
         const id = this.data.selectedId;

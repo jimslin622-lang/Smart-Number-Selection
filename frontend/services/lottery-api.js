@@ -14,13 +14,13 @@ function getMarkSixHistory() {
 }
 
 function getTypeId(typeOrId) {
-  if (typeOrId === '6+1模式' || typeOrId === '6+1模式') return 'lhc';
+  if (typeOrId === '港') return 'lhc';
   return LOTTERY_MAP[typeOrId]?.id || typeOrId || 'lhc';
 }
 
 function getTypeName(typeOrId) {
-  if (typeOrId === '6+1模式') return '6+1模式';
-  return LOTTERY_MAP[typeOrId]?.name || typeOrId || '6+1模式';
+  if (typeOrId === '港') return '港';
+  return LOTTERY_MAP[typeOrId]?.name || typeOrId || '港';
 }
 
 function normalizeMarkSixRow(row) {
@@ -29,7 +29,7 @@ function normalizeMarkSixRow(row) {
   const main = String(mainCsv || '').split(',').filter(Boolean);
   const specialList = special ? [special] : [];
   return {
-    type: '6+1模式',
+    type: '港',
     period,
     date,
     display: `主码：${main.join(' ')}\n附加号：${specialList.join(' ')}`,

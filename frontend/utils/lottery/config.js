@@ -1,6 +1,6 @@
 // ==================== 彩票类型配置 ====================
 const LOTTERY_TYPES = [
-  { id: 'lhc', name: '6+1模式', desc: '6+1数字', color: '#10b981', bg: 'linear-gradient(135deg, #10b981, #059669)', weeklyDraws: 3, drawDays: [2, 4, 6], icon: '六', iconClass: 'lottery-icon-lhc', iconText: '6' },
+  { id: 'lhc', name: '港', desc: '6+1数字', color: '#10b981', bg: 'linear-gradient(135deg, #10b981, #059669)', weeklyDraws: 3, drawDays: [2, 4, 6], icon: '六', iconClass: 'lottery-icon-lhc', iconText: '6' },
   { id: 'ssq', name: '红蓝模式', desc: '6红+1蓝', color: '#ef4444', bg: 'linear-gradient(135deg, #ef4444, #3b82f6)', weeklyDraws: 3, drawDays: [2, 4, 7], icon: '双', iconClass: 'lottery-icon-ssq', iconText: '红' },
   { id: 'dlt', name: '双区模式', desc: '5前+2后', color: '#f59e0b', bg: 'linear-gradient(135deg, #f59e0b, #ea580c)', weeklyDraws: 3, drawDays: [1, 3, 6], icon: '大', iconClass: 'lottery-icon-dlt', iconText: '双' },
   { id: 'qlc', name: '七位模式', desc: '7个号码', color: '#ec4899', bg: 'linear-gradient(135deg, #ec4899, #06b6d4)', weeklyDraws: 3, drawDays: [1, 3, 5], icon: '七', iconClass: 'lottery-icon-qlc', iconText: '7' },

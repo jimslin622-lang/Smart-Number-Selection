@@ -513,7 +513,7 @@
   <view class="landscape-overlay" wx:if="{{landscapeMode}}">
     <view class="landscape-header">
       <view>
-        <text class="landscape-title">6+1模式走势图</text>
+        <text class="landscape-title">港走势图</text>
         <text class="landscape-subtitle">{{trendRangeText}}</text>
       </view>
       <view class="landscape-close" bindtap="closeLandscape">关闭返回</view>

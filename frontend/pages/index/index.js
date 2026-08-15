@@ -8,7 +8,7 @@ Page({
     historyCounts: {}, // 通过 API /api/v1/templates 动态获取
     selectedTypeId: 'lhc',
     selectedTypeObj: LOTTERY_TYPES.find(t => t.id === 'lhc') || LOTTERY_TYPES[0],
-    selectedTypeName: '6+1模式',
+    selectedTypeName: '港',
     latestResult: null
   },
 

@@ -22,7 +22,7 @@ function enumerateAll(typeId, excludedSet) {
 
 Page({
   data: {
-    selectedType: '6+1模式',
+    selectedType: '港',
     selectedId: 'lhc',
     selectedDef: null,
     curMethod: 'weighted',
@@ -83,7 +83,7 @@ Page({
   },
 
   onLoad(options) {
-    const type = options.type ? decodeURIComponent(options.type) : '6+1模式';
+    const type = options.type ? decodeURIComponent(options.type) : '港';
     const id = LOTTERY_MAP[type]?.id || 'lhc';
     const rule = LOTTERY_RULES[id] || LOTTERY_RULES.lhc;
     const def = LOTTERY_DEFS[id];

@@ -79,7 +79,7 @@ function normalizeDraw(draw) {
    const display = `主码：${main.join(' ')}\n附加号：${special.join(' ')}`;
   return {
     typeId: 'lhc',
-    type: '6+1模式',
+    type: '港',
     period: compactPeriod(draw),
     date: formatDate(draw.drawDate),
     sampleDate: toIsoDate(draw.drawDate),

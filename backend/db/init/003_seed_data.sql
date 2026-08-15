@@ -1,6 +1,6 @@
 -- 插入玩法类型
 INSERT INTO lottery_type (code, name, country, category, number_rule, draw_days) VALUES
-('lhc', '六合', '香港', '数字彩', '{"main":{"min":1,"max":49,"count":6},"extra":{"min":1,"max":49,"count":1}}', '{"days":["二","四","六/日"]}'),
+('lhc', '港', '香港', '数字彩', '{"main":{"min":1,"max":49,"count":6},"extra":{"min":1,"max":49,"count":1}}', '{"days":["二","四","六/日"]}'),
 ('ssq', '双色', '中国', '乐透型', '{"main":{"min":1,"max":33,"count":6},"extra":{"min":1,"max":16,"count":1}}', '{"days":["二","四","日"]}'),
 ('dlt', '乐透', '中国', '乐透型', '{"main":{"min":1,"max":35,"count":5},"extra":{"min":1,"max":12,"count":2}}', '{"days":["一","三","六"]}'),
 ('qlc', '七乐', '中国', '乐透型', '{"main":{"min":1,"max":30,"count":7}}', '{"days":["一","三","五"]}'),

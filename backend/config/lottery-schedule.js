@@ -10,10 +10,10 @@
  */
 
 const LOTTERY_SCHEDULE = [
-  // 6+1模式 (周二、周四、周六/周日)
+  // 港 (周二、周四、周六/周日)
   {
     code: 'lhc',
-    name: '6+1模式',
+    name: '港',
     provider: 'hkjc',
     days: [2, 4, 6, 7], // 周二、周四、周六、周日
     time: '21:00',     // 21:00 开奖
